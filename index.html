@@ -1957,7 +1957,10 @@ function h(t) { var d = document.createElement('div'); d.textContent = t||''; re
                 var sActual = s.amount - (s.discount||0);
                 if (s.paid >= sActual) { s.owed = false; s.paid = sActual; }
                 if (!s.receiveDates) s.receiveDates = [];
-                s.receiveDates.push({ amount: applyAmount, date: receiveDate, device: currentDevice });
+                // 只记录实际收款金额，不包含抹零减免
+                if (applyAmount > 0) {
+                    s.receiveDates.push({ amount: applyAmount, date: receiveDate, device: currentDevice });
+                }
                 s.lastReceiveDate = receiveDate;
                 s.lastModified = Date.now();
                 s.lastModifiedDevice = currentDevice;
