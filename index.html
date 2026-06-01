@@ -1624,14 +1624,17 @@ function h(t) { var d = document.createElement('div'); d.textContent = t||''; re
             } else {
                 // 桌面端：直接生成图片预览
                 var _deskWrap = document.createElement('div');
-                _deskWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:10001;overflow:auto;';
+                _deskWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:10001;overflow:auto;display:flex;align-items:center;justify-content:center;';
                 document.body.appendChild(_deskWrap);
-                if (typeof html2canvas !== 'undefined') {
+                // 先生成缩略图（立即显示，防止白屏）
+                html2canvas(printArea.firstElementChild, { scale: 0.5, backgroundColor: '#ffffff', useCORS: true }).then(function(thumb) {
+                    var img = document.createElement('img');
+                    img.src = thumb.toDataURL('image/png');
+                    img.style.cssText = 'max-width:100%;max-height:calc(100vh - 100px);object-fit:contain;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.3);';
+                    _deskWrap.appendChild(img);
+                    // 同时在后台生成2倍图（完成后替换）
                     html2canvas(printArea.firstElementChild, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
-                        var img = document.createElement('img');
                         img.src = canvas.toDataURL('image/png');
-                        img.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:calc(100% - 40px);max-height:calc(100vh - 100px);object-fit:contain;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.3);';
-                        _deskWrap.appendChild(img);
                         var baseBtn = 'position:absolute;padding:10px 22px;font-size:16px;font-weight:600;color:#fff;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.3);text-shadow:0 1px 2px rgba(0,0,0,0.3);';
                         var deskDownBtn = document.createElement('button'); deskDownBtn.textContent = '💾 下载图片'; deskDownBtn.style.cssText = baseBtn + 'bottom:20px;left:50%;transform:translateX(-70px);background:linear-gradient(145deg,#27ae60,#219a52);'; deskDownBtn.onclick = function() { canvas.toBlob(function(blob) { downloadBlob(blob); }, 'image/png'); };
                         var deskPrintBtn = document.createElement('button'); deskPrintBtn.textContent = '🖨️ 打印'; deskPrintBtn.style.cssText = baseBtn + 'bottom:20px;left:50%;transform:translateX(10px);background:linear-gradient(145deg,#3498db,#2980b9);'; deskPrintBtn.onclick = function() { window.print(); };
@@ -1640,13 +1643,12 @@ function h(t) { var d = document.createElement('div'); d.textContent = t||''; re
                         _deskWrap.appendChild(deskPrintBtn);
                         _deskWrap.appendChild(deskCloseBtn);
                     }).catch(function(e) {
-                        _deskWrap.remove();
                         showToast('生成图片失败');
                     });
-                } else {
+                }).catch(function(e) {
                     _deskWrap.remove();
-                    showToast('图片库未加载，请手动截图');
-                }
+                    showToast('生成图片失败');
+                });
             }
             } catch(e) {
                 showToast('打印出错: ' + e.message);
