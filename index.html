@@ -1945,24 +1945,26 @@ function h(t) { var d = document.createElement('div'); d.textContent = t||''; re
             var remaining = amount;
             var remainingDiscount = discount;
             owedItems.forEach(function(s){
-                var sOutstanding = s.amount - (s.discount||0) - (s.paid||0);
+                var sActual = s.amount - (s.discount||0); // 当前应收（扣除已减免）
+                var sPaid = s.paid || 0;
+                var sOutstanding = sActual - sPaid;
                 if (sOutstanding <= 0) return;
-                // 先分摊减免/抹零（不记入收款记录）
+
+                // 1. 先分摊减免/抹零（减免不记入收款记录）
                 var applyDiscount = Math.min(remainingDiscount, sOutstanding);
                 if (applyDiscount > 0) {
                     s.discount = (s.discount||0) + applyDiscount;
                     remainingDiscount -= applyDiscount;
+                    sActual = s.amount - s.discount;
+                    sOutstanding = sActual - sPaid;
                 }
-                // 重新计算欠款，再算实际收款金额
-                sOutstanding = s.amount - (s.discount||0) - (s.paid||0);
-                if (sOutstanding <= 0) return;
-                // 实际收款：只取用户输入的本次收款金额，不受减免影响
-                var applyAmount = Math.min(remaining, Math.max(0, sOutstanding));
+
+                // 2. 本次实收现金 = 用户输入的收款金额（不受折扣影响）
+                var applyAmount = Math.min(remaining, sOutstanding);
                 if (applyAmount > 0) {
-                    s.paid = (s.paid||0) + applyAmount;
+                    s.paid = sPaid + applyAmount;
                     remaining -= applyAmount;
-                    var sActual = s.amount - (s.discount||0);
-                    if (s.paid >= sActual) { s.owed = false; s.paid = sActual; }
+                    if (s.paid >= sActual) { s.paid = sActual; s.owed = false; }
                     if (!s.receiveDates) s.receiveDates = [];
                     s.receiveDates.push({ amount: applyAmount, date: receiveDate, device: currentDevice });
                     s.lastReceiveDate = receiveDate;
