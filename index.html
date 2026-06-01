@@ -1,0 +1,2817 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦞 裕丰海鲜进销存助手</title><!-- v202605271911 -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'STXingkai', '华文行楷', 'XingKai', cursive; font-size: 18px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; padding: 20px; color: #1a1a1a; }
+        .container { max-width: 1400px; margin: 0 auto; background: #e5dfd4; border-radius: 20px; box-shadow: 0 25px 80px rgba(0,0,0,0.4); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #40916c 100%); color: #1a1a1a; padding: 35px 30px; text-align: center; position: relative; overflow: hidden; }
+        .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); }
+        .header h1 { font-size: 2.4em; margin-bottom: 8px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); letter-spacing: 2px; position: relative; }
+        .header p { color: rgba(26,26,26,0.75); font-size: 1.05em; position: relative; }
+        .tabs { display: flex; background: #c9c2b5; padding: 6px 6px 0; gap: 4px; overflow-x: auto; }
+        .tab { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; font-size: 1em; font-weight: 600; border: none; border-radius: 10px 10px 0 0; background: linear-gradient(180deg, #ddd8cd 0%, #ccc5b8 100%); color: #6c757d; transition: all .25s; white-space: nowrap; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 -2px 4px rgba(0,0,0,0.06); position: relative; }
+        .tab:hover { background: linear-gradient(180deg, #f0ebe2 0%, #d5cfc4 100%); color: #2d2d2d; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 -3px 6px rgba(0,0,0,0.1); }
+        .tab.active { background: #e5dfd4; color: #14532d; border-bottom: 3px solid #e5dfd4; margin-bottom: -3px; box-shadow: 0 -3px 8px rgba(64,145,108,0.15), inset 0 2px 0 #40916c; }
+        .content { padding: 28px 30px; display: none; background: #e5dfd4; }
+        .content.active { display: block; }
+        .content h2 { font-size: 1.5em; color: #1b4332; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #d5cfc4; }
+        .form-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; padding: 22px; background: #cec6b8; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #b5ad9f; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2d2d2d; font-size: 0.88em; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1.5px solid #ada596; border-radius: 8px; font-size: 0.95em; background: #e0dbd2; transition: border-color .2s, box-shadow .2s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #40916c; box-shadow: 0 0 0 3px rgba(64,145,108,0.15); background: #ebe6dc; }
+        .form-group.collapsed { display: none; }
+        .btn { padding: 10px 22px; border: none; border-radius: 8px; font-size: 0.95em; cursor: pointer; font-weight: 600; transition: all .2s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn:active { transform: translateY(0); }
+        .btn-primary { background: linear-gradient(135deg, #4c6ef5, #5c7cfa); color: white; }
+        .btn-success { background: linear-gradient(135deg, #2d6a4f, #40916c); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #c92a2a, #e03131); color: white; }
+        .btn-secondary { background: #868e96; color: white; }
+        .btn-secondary:hover { background: #7a7f85; }
+        .actions { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+        .actions.collapsed { display: none; }
+        .toggle-form-btn { font-size: 0.75em; padding: 5px 14px; margin-left: 10px; background: linear-gradient(145deg, #f5f0e8, #e0dbd2); color: #2e7d32; border: none; border-radius: 8px; cursor: pointer; vertical-align: middle; box-shadow: 3px 3px 6px rgba(0,0,0,0.25), -2px -2px 5px rgba(255,255,255,0.9); transition: all 0.18s ease; font-weight: 600; letter-spacing: 0.5px; } .toggle-form-btn:hover { background: linear-gradient(145deg, #f5f0e8, #ebe6dc); box-shadow: 4px 4px 8px rgba(0,0,0,0.3), -2px -2px 6px rgba(255,255,255,1); color: #1b5e20; transform: translateY(-1px); } .toggle-form-btn:active { background: linear-gradient(145deg, #ebe6dc, #f0ebe2); box-shadow: 2px 2px 4px rgba(0,0,0,0.2), -1px -1px 3px rgba(255,255,255,0.8); transform: translateY(1px); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; background: #f0ebe2; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .table-wrap { width: 100%; max-height: 80vh; overflow-x: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid #d2cabf; }
+        th, td { padding: 12px 14px; text-align: left; font-size: 1em; border-bottom: 1px solid #d5cfc4; }
+        th { background: linear-gradient(135deg, #2d6a4f, #40916c); color: #fff; font-weight: 600; font-size: 0.88em; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 10; }
+        th:first-child { padding-left: 16px; }
+        td { color: #1a1a1a; }
+        td:first-child { padding-left: 16px; }
+        /* 数字列不换行 */
+        td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8), td:nth-child(9) { white-space: nowrap; text-align: right; }
+        /* 备注列限制宽度换行 */
+        td.note-cell { max-width: 120px; word-wrap: break-word; word-break: break-all; white-space: normal; }
+        /* 最后操作列多行显示 */
+        td.last-op-cell { max-width: 140px; white-space: normal; line-height: 1.4; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f0ebe2; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .stat-card { padding: 22px 18px; border-radius: 14px; color: white; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.12); transition: transform .2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-card h3 { font-size: 1.8em; margin-bottom: 4px; font-weight: 700; }
+        .stat-card p { font-size: 0.85em; opacity: 0.9; }
+        .stat-1 { background: linear-gradient(135deg, #4c6ef5, #7950f2); }
+        .stat-2 { background: linear-gradient(135deg, #f06595, #e64980); }
+        .stat-3 { background: linear-gradient(135deg, #22b8cf, #15aabf); }
+        .stat-4 { background: linear-gradient(135deg, #40c057, #51cf66); }
+        .toggle-wrap { display: flex; align-items: center; gap: 10px; height: 42px; }
+        .toggle-switch { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #c9c2b5; border-radius: 26px; transition: .25s; }
+        .toggle-slider::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; bottom: 3px; background: #f5f0e8; border-radius: 50%; transition: .25s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .toggle-switch input:checked + .toggle-slider { background: #e03131; }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+        .toggle-label { font-size: 0.92em; color: #1a1a1a; font-weight: 600; user-select: none; }
+        .batch-section { margin-top: 20px; border: 2px dashed #ada596; border-radius: 14px; padding: 18px; background: #cec6b8; }
+        .batch-header { font-weight: 600; color: #1a1a1a; margin-bottom: 12px; cursor: pointer; font-size: 1.05em; }
+        .batch-item { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: end; }
+        .batch-item input { padding: 9px 10px; border: 1.5px solid #ada596; border-radius: 8px; background: #e0dbd2; font-size: 0.92em; transition: border-color .2s; }
+        .batch-item input:focus { outline: none; border-color: #40916c; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal.show { display: flex; }
+        .modal-content { background: #ebe6dc; padding: 32px; border-radius: 18px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid #d2cabf; }
+        .modal-header { font-size: 1.35em; font-weight: 700; margin-bottom: 24px; color: #1b4332; text-align: center; padding-bottom: 14px; border-bottom: 2px solid #ddd8cd; }
+        .modal-actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ddd8cd; }
+        .detail-label { color: #868e96; font-weight: 600; font-size: 1.15em; }
+        .detail-value { color: #1a1a1a; font-weight: 500; font-size: 1.15em; }
+        .sync-badge { font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; margin-left: 10px; font-weight: 600; }
+        .sync-ok { background: rgba(64,145,108,0.15); color: #14532d; }
+        .sync-pending { background: rgba(240,173,78,0.15); color: #e67700; }
+        .sync-error { background: rgba(224,49,49,0.15); color: #c92a2a; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #c9c2b5; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        /* Table row buttons */
+        .btn-secondary.btn-sm, .btn-danger.btn-sm { padding: 6px 12px; font-size: 0.82em; border-radius: 6px; }
+        /* 响应式表格 - 手机端 */
+        @media (max-width: 768px) {
+            /* 手机端表格高度更大 */
+            .table-wrap { max-height: 75vh; }
+            table { font-size: 0.88em; }
+            th, td { padding: 8px 6px; }
+            .table-wrap { margin: 0 -10px; padding: 0 10px; }
+            /* 隐藏次要列 */
+            .col-optional { display: none; }
+            /* 展开行样式 */
+            tr.expanded .col-optional { display: table-cell; }
+            tr.expanded td { background: #ebe6dc; }
+            /* 主行可点击 */
+            tr.data-row { cursor: pointer; }
+            tr.data-row:hover td { background: #e2dcd2; }
+            /* 操作按钮行 */
+            .action-row td { padding: 8px 10px; background: #dad3c7; }
+        }
+        /* Sync button - 龙虾钳子造型 */
+        .sync-btn {
+            margin-left: 10px;
+            font-size: 0.42em;
+            padding: 5px 12px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .lobster-emoji {
+            display: inline-block;
+            font-size: 1.5em;
+            animation: lobsterSpinSlow 4s ease-in-out infinite;
+            transform-origin: center center;
+        }
+        .lobster-emoji:hover {
+            animation: lobsterSpinFast 0.6s ease-in-out infinite;
+        }
+        @keyframes lobsterSpinSlow {
+            0%, 100% { transform: rotate(-8deg); }
+            50% { transform: rotate(2deg); }
+        }
+        @keyframes lobsterSpinFast {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+        .sync-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 3px 10px rgba(238, 90, 36, 0.35),
+                0 1px 3px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+        }
+        .sync-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 12px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .sync-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow:
+                0 5px 15px rgba(238, 90, 36, 0.4),
+                0 2px 5px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+            background: linear-gradient(145deg, #ff7b7b, #ff6b35);
+        }
+        .sync-btn:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow:
+                0 2px 8px rgba(238, 90, 36, 0.3),
+                0 1px 2px rgba(0, 0, 0, 0.2),
+                inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .sync-btn svg {
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+        }
+        .sync-btn:hover svg {
+            animation: clawSnap 0.4s ease-in-out;
+        }
+        @keyframes clawSnap {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-8deg); }
+            75% { transform: rotate(8deg); }
+        }
+        /* 小龙虾图标动画 */
+        .header h1 svg {
+            animation: lobsterBreathe 3s ease-in-out infinite;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .header h1 svg:hover {
+            animation: lobsterSpin 0.6s ease-in-out;
+        }
+        @keyframes lobsterBreathe {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.03) rotate(-2deg); }
+        }
+        @keyframes lobsterSpin {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(360deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1b4332; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 1em; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+        /* 打印样式 */
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border-radius: 0; }
+            .header, .tabs, .content > *:not(#printArea), .modal, .toast { display: none !important; }
+            #printArea { display: block !important; }
+        }
+    
+        /* 打印预览按钮 - 浮动效果 */
+        .print-preview-btn {
+            display:block;
+            margin:10px auto;
+            padding:12px 28px;
+            font-size:16px;
+            font-weight:600;
+            color:#fff;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+            transition:all 0.2s;
+            box-shadow:0 4px 8px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .print-preview-btn.primary {
+            background:linear-gradient(145deg,#27ae60,#219a52);
+            text-shadow:0 1px 2px rgba(0,0,0,0.3);
+        }
+        .print-preview-btn.primary:hover {
+            transform:translateY(-3px);
+            box-shadow:0 8px 16px rgba(39,174,96,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .print-preview-btn.secondary {
+            background:linear-gradient(145deg,#3498db,#2980b9);
+            text-shadow:0 1px 2px rgba(0,0,0,0.3);
+        }
+        .print-preview-btn.secondary:hover {
+            transform:translateY(-3px);
+            box-shadow:0 8px 16px rgba(52,152,219,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .print-preview-btn.cancel {
+            background:linear-gradient(145deg,#95a5a6,#7f8c8d);
+            text-shadow:0 1px 2px rgba(0,0,0,0.2);
+        }
+        .print-preview-btn.cancel:hover {
+            transform:translateY(-3px);
+            box-shadow:0 8px 16px rgba(149,165,166,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        /* 打印预览按钮 - 浮动效果 */
+        .print-preview-btn {
+            display:block;
+            margin:10px auto;
+            padding:12px 28px;
+            font-size:16px;
+            font-weight:600;
+            color:#fff;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+            transition:all 0.2s;
+            box-shadow:0 4px 8px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .print-preview-btn.primary {
+            background:linear-gradient(145deg,#27ae60,#219a52);
+            text-shadow:0 1px 2px rgba(0,0,0,0.3);
+        }
+        .print-preview-btn.primary:hover {
+            transform:translateY(-3px);
+            box-shadow:0 8px 16px rgba(39,174,96,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .print-preview-btn.secondary {
+            background:linear-gradient(145deg,#3498db,#2980b9);
+            text-shadow:0 1px 2px rgba(0,0,0,0.3);
+        }
+        .print-preview-btn.secondary:hover {
+            transform:translateY(-3px);
+            box-shadow:0 8px 16px rgba(52,152,219,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .print-preview-btn.cancel {
+            background:linear-gradient(145deg,#95a5a6,#7f8c8d);
+            text-shadow:0 1px 2px rgba(0,0,0,0.2);
+        }
+        .print-preview-btn.cancel:hover {
+            transform:translateY(-3px);
+            box-shadow:0 8px 16px rgba(149,165,166,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+</style>
+</head>
+<body>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- 打印区域(默认隐藏,print/share时显示) -->
+<div id="login-screen" style="display:none;">
+    <div style="text-align:center; padding-top:80px;">
+        <h1 style="font-size:2.8em; color:#1a1a1a; text-shadow:0 2px 12px rgba(0,0,0,0.15);">🦞 小龙虾进销存</h1>
+        <span id="x-sync-badge" class="sync-badge sync-ok">已同步</span>
+        <p style="color:rgba(255,255,255,0.6); margin:18px 0 28px; font-size:1.05em;">请输入访问密码</p>
+        <div style="max-width:380px; margin:0 auto; background:#f5f0e8; border-radius:16px; padding:36px 32px; box-shadow:0 15px 50px rgba(0,0,0,0.25);">
+            <input type="password" id="login-pwd" placeholder="输入密码" style="width:100%; padding:13px 16px; background:#f0ebe2; border:1.5px solid #d5cfc4; border-radius:10px; color:#1a1a1a; font-size:1rem; margin-bottom:16px; outline:none; transition:border-color .2s;" onfocus="this.style.borderColor='#40916c'" onblur="this.style.borderColor='#d5cfc4'" onkeydown="if(event.key==='Enter')xcloudLogin()">
+            <button onclick="xcloudLogin()" style="width:100%; padding:13px; background:linear-gradient(135deg,#2d6a4f,#40916c); color:#fff; border:none; border-radius:10px; font-size:1.05rem; font-weight:600; cursor:pointer; transition:all .2s; box-shadow:0 4px 14px rgba(45,106,79,0.3);" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">进 入</button>
+            <div id="login-error" style="color:#e03131; font-size:0.85rem; margin-top:14px; text-align:center; display:none; font-weight:500;">密码错误,请重试</div>
+        </div>
+    </div>
+</div>
+
+    <div class="container" style="display:none;">
+        <div class="header">
+            <h1><span class="lobster-emoji">🦞</span>裕丰海鲜进销存助手 <span id="x-sync-badge-header" class="sync-badge sync-ok">已同步</span> <button onclick="xTryCloudSync()" class="sync-btn" title="手动同步云端数据"><svg width="24" height="24" viewBox="0 0 32 32" fill="none" style="vertical-align:middle;margin-right:1px;"><defs><linearGradient id="clawGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fff;stop-opacity:0.95"/><stop offset="100%" style="stop-color:#ffe0e0;stop-opacity:0.9"/></linearGradient></defs><!-- 左钳子臂(较大) --><path d="M8 16 Q4 12 5 8 Q6 5 10 6 Q14 7 14 12 Q14 15 12 16 Z" fill="url(#clawGrad)" stroke="#fff" stroke-width="0.5"/><!-- 右钳子臂(较小) --><path d="M24 16 Q28 13 27 9 Q26 6 22 7 Q18 8 18 12 Q18 15 20 16 Z" fill="url(#clawGrad)" stroke="#fff" stroke-width="0.5"/><!-- 关节连接处 --><ellipse cx="16" cy="17" rx="5" ry="4" fill="url(#clawGrad)" stroke="#fff" stroke-width="0.5"/><!-- 高光 --><ellipse cx="10" cy="10" rx="2" ry="1.5" fill="rgba(255,255,255,0.6)"/><ellipse cx="23" cy="10" rx="1.5" ry="1" fill="rgba(255,255,255,0.5)"/></svg>同步</button></h1>
+            <p>简单好用的进销存管理工具</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('purchase')">📥 采购入库</button>
+            <button class="tab" onclick="switchTab('sales')">📤 销售出库</button>
+            <button class="tab" onclick="switchTab('receivable')">💰 应收管理</button>
+            <button class="tab" onclick="switchTab('inventory')">📊 库存查询</button>
+            <button class="tab" onclick="switchTab('loss')">⚠️ 损耗记录</button>
+            <button class="tab" onclick="switchTab('daily')"><span style="display:inline-block;width:22px;height:22px;border-radius:4px;background:linear-gradient(135deg,#f1948a,#c0392b);color:#fff;font-size:9px;line-height:10px;text-align:center;padding-top:2px;font-weight:bold;vertical-align:middle;margin-right:2px;box-shadow:1px 1px 3px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.25);"><span style="font-size:6px;display:block;line-height:8px;" id="dailyTabMonth">6</span><span id="dailyTabDay" style="font-size:11px;display:block;line-height:12px;">1</span></span> 日报</button>
+            <button class="tab" onclick="switchTab('stats')">📈 统计报表</button>
+        </div>
+
+        <!-- 采购入库 -->
+        <div id="purchase" class="content active">
+            <h2>📥 采购入库 <button class="toggle-form-btn" onclick="toggleForm('purchase')">收起</button></h2>
+            <div class="form-group">
+                <div><label>到货日期</label><input type="date" id="purchaseArrival"></div>
+                <div><label>采购日期</label><input type="date" id="purchaseDate"></div>
+                <div><label>供应商</label><input type="text" id="purchaseSupplier" placeholder="供应商名称"></div>
+                <div><label>品种</label><input type="text" id="purchaseVariety" placeholder="品种"></div>
+                <div><label>数量 (斤)</label><input type="number" id="purchaseQuantity" placeholder="0" step="0.1"></div>
+                <div><label>单价 (元/斤)</label><input type="number" id="purchasePrice" placeholder="0" step="0.01"></div>
+                <div><label>运费 (元)</label><input type="number" id="purchaseShipping" placeholder="0" step="0.01"></div>
+                <div><label>是否欠款</label>
+                    <div class="toggle-wrap">
+                        <label class="toggle-switch"><input type="checkbox" id="purchaseOwed"><span class="toggle-slider"></span></label>
+                        <span class="toggle-label" id="purchaseOwedLabel" style="color:#28a745;">未欠款</span>
+                    </div>
+                </div>
+                <div id="purchasePaidWrap"><label>已付金额 (元)</label><input type="number" id="purchasePaid" placeholder="欠款时填写" step="0.01" value="0" disabled><div style="font-size:0.75em;color:#999;margin-top:2px;">不欠款时默认为全额付款</div></div>
+                <div><label>付款日期</label><input type="date" id="purchasePaidDate" placeholder="留空=采购日期"></div>
+                <div><label>备注</label><input type="text" id="purchaseNote" placeholder="可选备注"></div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="addPurchase()">➕ 添加单条记录</button>
+                <button class="btn btn-success" onclick="togglePurchaseBatch()">📝 批量添加</button>
+            </div>
+            <div class="batch-section" id="purchaseBatchSection" style="display:none;">
+                <div class="batch-header">📝 批量添加商品(同供应商/日期) <span style="font-size:0.78em;color:#868e96;">点击添加多个品种</span></div>
+                <div id="purchaseBatchItems"></div>
+                <div class="form-group" style="margin-top:15px;">
+                    <div><label>是否欠款</label>
+                        <div class="toggle-wrap">
+                            <label class="toggle-switch"><input type="checkbox" id="batchPurchaseOwed" onchange="var l=document.getElementById('batchPurchaseOwedLabel');l.textContent=this.checked?'欠款':'未欠款';l.style.color=this.checked?'#dc3545':'#28a745';var p=document.getElementById('batchPurchasePaid');p.disabled=!this.checked;"><span class="toggle-slider"></span></label>
+                            <span class="toggle-label" id="batchPurchaseOwedLabel" style="color:#28a745;">未欠款</span>
+                        </div>
+                    </div>
+                    <div><label>已付金额</label><input type="number" id="batchPurchasePaid" step="0.01" value="0" disabled style="width:120px;"></div>
+                    <div><label>付款日期</label><input type="date" id="batchPurchasePaidDate" style="width:160px;"></div>
+                </div>
+                <div class="actions" style="margin-top:15px;">
+                    <button class="btn btn-primary" onclick="addPurchaseBatchItem()">+ 添加品种</button>
+                    <button class="btn btn-success" onclick="submitPurchaseBatch()">✓ 确认批量添加</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr><th>到货日期</th><th>采购日期</th><th>供应商</th><th>品种</th><th>数量</th><th>单价</th><th>总价</th><th>运费</th><th>已付</th><th>欠款</th><th>备注</th><th>最后操作</th><th>操作</th></tr></thead>
+                <tbody id="purchaseTable"></tbody>
+            </table>
+            </div>
+        </div>
+
+        <div id="printArea" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:10000;overflow:auto;padding:20px;display:none;justify-content:center;flex-direction:column;align-items:center;"></div>
+
+        <!-- 销售出库 -->
+        <div id="sales" class="content">
+            <h2>📤 销售出库 <button class="toggle-form-btn" onclick="toggleForm('sales')">收起</button></h2>
+            <div class="form-group">
+                <div><label>日期</label><input type="date" id="salesDate"></div>
+                <div><label>客户</label><input type="text" id="salesCustomer" placeholder="客户名称"></div>
+                <div><label>品种</label><input type="text" id="salesVariety" placeholder="品种"></div>
+                <div><label>数量 (斤)</label><input type="number" id="salesQuantity" placeholder="0" step="0.1" oninput="updateSalesAmount()"></div>
+                <div><label>单价 (元/斤)</label><input type="number" id="salesPrice" placeholder="0" step="0.01" oninput="updateSalesAmount()"></div>
+                <div><label>运费 (元)</label><input type="number" id="salesShipping" placeholder="0" step="0.01" oninput="updateSalesAmount()"></div>
+                <div><label>应收金额 (元)</label><div id="salesAmountDisplay" style="font-size:1.4em;font-weight:bold;color:#28a745;padding:6px 0;min-height:1.6em;">¥0</div></div>
+                <div><label>结款方式</label>
+                    <select id="salesPayment">
+                        <option value="微信">微信</option>
+                        <option value="现金">现金</option>
+                        <option value="支付宝">支付宝</option>
+                        <option value="银行转账">银行转账</option>
+                        <option value="月结">月结</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div><label>是否欠款</label>
+                    <div class="toggle-wrap">
+                        <label class="toggle-switch"><input type="checkbox" id="salesOwed"><span class="toggle-slider"></span></label>
+                        <span class="toggle-label" id="salesOwedLabel" style="color:#28a745;">未欠款</span>
+                    </div>
+                </div>
+                <div><label>抹零/优惠 (元)</label><input type="number" id="salesActual" placeholder="留空则无抹零" step="0.01"><div style="font-size:0.75em;color:#999;margin-top:2px;">抹零或优惠减免金额，不填=无</div></div>
+                <div id="salesPaidWrap"><label>已收金额 (元)</label><input type="number" id="salesPaid" placeholder="欠款时填写" step="0.01" disabled><div style="font-size:0.75em;color:#999;margin-top:2px;">不欠款时默认为全额收款</div></div>
+                <div><label>备注</label><input type="text" id="salesNote" placeholder="可选备注"></div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="addSales()">➕ 添加单条记录</button>
+                <button class="btn btn-success" onclick="toggleBatch()">📝 批量添加</button>
+            </div>
+            <div class="batch-section" id="batchSection" style="display:none;">
+                <div class="batch-header">📝 批量添加商品(同一客户/日期) <span style="font-size:0.78em;color:#868e96;">点击添加多个品种</span></div>
+                <div id="batchItems"></div>
+                <div class="actions" style="margin-top:15px;">
+                    <button class="btn btn-primary" onclick="addBatchItem()">+ 添加品种</button>
+                    <button class="btn btn-success" onclick="submitBatch()">✓ 确认批量添加</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr><th>日期</th><th>客户</th><th>品种</th><th>数量</th><th>单价</th><th>运费</th><th>总金额</th><th>结款方式</th><th>欠款</th><th>备注</th><th>最后操作</th><th>操作</th></tr></thead>
+                <tbody id="salesTable"></tbody>
+            </table>
+            </div>
+        </div>
+
+        <!-- 损耗记录 -->
+        <div id="loss" class="content">
+            <h2>⚠️ 损耗记录 <button class="toggle-form-btn" onclick="toggleForm('loss')">收起</button></h2>
+            <div class="form-group">
+                <div><label>日期</label><input type="date" id="lossDate"></div>
+                <div><label>采购日期</label><input type="date" id="lossPurchaseDate"></div>
+                <div><label>供应商</label><input type="text" id="lossSupplier" placeholder="供应商名称"></div>
+                <div><label>品种</label><input type="text" id="lossVariety" placeholder="品种"></div>
+                <div><label>数量 (斤)</label><input type="number" id="lossQuantity" placeholder="0" step="0.1"></div>
+                <div><label>单价 (元/斤)</label><input type="number" id="lossPrice" placeholder="可不填,自动用采购均价" step="0.01"></div>
+                <div><label>原因</label>
+                    <select id="lossReason">
+                        <option value="正常损耗">正常损耗</option>
+                        <option value="变质">变质</option>
+                        <option value="损伤">损伤</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div><label>备注</label><input type="text" id="lossNote" placeholder="可选备注"></div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="addLoss()">➕ 添加损耗记录</button>
+            </div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr><th>日期</th><th>采购日期</th><th>供应商</th><th>品种</th><th>数量</th><th>单价</th><th>损耗成本</th><th>原因</th><th>备注</th><th>最后操作</th><th>操作</th></tr></thead>
+                <tbody id="lossTable"></tbody>
+            </table>
+            </div>
+        </div>
+
+        <!-- 应收管理 -->
+        <div id="receivable" class="content">
+            <h2>💰 应收管理</h2>
+            <div class="stats">
+                <div class="stat-card stat-1"><h3 id="totalReceivable">¥0</h3><p>欠款总额</p></div>
+                <div class="stat-card stat-2"><h3 id="totalReceived">¥0</h3><p>已收总额</p></div>
+                <div class="stat-card stat-3"><h3 id="totalOutstanding">¥0</h3><p>待收</p></div>
+            </div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr><th>日期</th><th>客户</th><th>品种</th><th>总金额</th><th>已收</th><th>未收</th><th>结款方式</th><th>备注</th><th>最后操作</th><th>操作</th></tr></thead>
+                <tbody id="receivableTable"></tbody>
+            </table>
+            </div>
+        </div>
+
+        <!-- 库存查询 -->
+        <div id="inventory" class="content">
+            <h2>📊 库存查询</h2>
+            <div class="stats">
+                <div class="stat-card stat-1"><h3 id="totalPurchase">0</h3><p>总入库 (斤)</p></div>
+                <div class="stat-card stat-2"><h3 id="totalSales">0</h3><p>总销售 (斤)</p></div>
+                <div class="stat-card stat-3"><h3 id="totalLoss">0</h3><p>总损耗 (斤)</p></div>
+                <div class="stat-card stat-4"><h3 id="currentStock">0</h3><p>当前库存 (斤)</p></div>
+            </div>
+            <div class="table-wrap">
+            <table>
+                <thead><tr><th>品种</th><th>入库总量</th><th>销售总量</th><th>损耗量</th><th>当前库存</th><th>平均成本</th></tr></thead>
+                <tbody id="inventoryTable"></tbody>
+            </table>
+            </div>
+        </div>
+
+        <!-- 统计报表 -->
+        <div id="stats" class="content">
+            <h2>📈 统计报表</h2>
+            <div class="stats">
+                <div class="stat-card stat-1"><h3 id="totalPurchaseAmount">¥0</h3><p>采购总额</p></div>
+                <div class="stat-card stat-2"><h3 id="totalSalesAmount">¥0</h3><p>销售总额</p></div>
+                <div class="stat-card stat-3"><h3 id="totalProfit">¥0</h3><p>毛利润</p></div>
+                <div class="stat-card stat-4"><h3 id="owedAmount">¥0</h3><p>应收账款</p></div>
+            </div>
+
+            <h3 style="margin-top:30px; margin-bottom:15px; color:#1b4332; font-weight:700;">📦 数据管理</h3>
+            <div style="background:#f5f0e8; padding:22px; border-radius:12px; border:1px solid #d5cfc4; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:20px;">
+                <div class="actions" style="flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="backupData()">📦 备份全部数据</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('restoreFile').click()">📂 恢复数据</button>
+                    <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreData(event)">
+                </div>
+                <hr style="margin:15px 0; border:none; border-top:1px solid #d5cfc4;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div>
+                        <h4 style="margin-bottom:12px; color:#1a1a1a; font-weight:600;">📥 导出 Excel/CSV</h4>
+                        <div class="actions">
+                            <button class="btn btn-success" onclick="exportData('purchase')">采购入库</button>
+                            <button class="btn btn-success" onclick="exportData('sales')">销售出库</button>
+                            <button class="btn btn-success" onclick="exportData('loss')">损耗记录</button>
+                            <button class="btn btn-success" onclick="exportData('receivable')">💰 应收管理</button>
+                            <button class="btn btn-success" onclick="exportData('inventory')">📦 库存查询</button>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button onclick="openDeviceModal()" style="padding:6px 14px;font-size:0.85em;background:linear-gradient(to bottom,#7a8a99,#5a6a79);color:#fff;border:1px solid #4a5a69;border-radius:6px;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,0.2);" title="设备设置">⚙️ 设备</button>
+                        <button onclick="logout()" style="padding:6px 14px;font-size:0.85em;background:linear-gradient(to bottom,#adb5bd,#8a9aa9);color:#fff;border:1px solid #7a8a99;border-radius:6px;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,0.2);" title="退出登录">退出</button>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top:30px; margin-bottom:15px; color:#1b4332; font-weight:700;">📋 操作日志</h3>
+            <div style="background:#f5f0e8; padding:22px; border-radius:12px; border:1px solid #d5cfc4; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="color:#666; font-size:0.9em;">最近50条操作记录</span>
+                    <button class="btn btn-secondary" style="font-size:0.85em; padding:6px 12px;" onclick="clearLogs()">清空日志</button>
+                </div>
+                <div id="operationLogs" style="max-height:300px; overflow-y:auto; font-size:0.9em;"></div>
+            </div>
+        </div>
+
+        <!-- 日报 -->
+        <div id="daily" class="content">
+            <h2><span id="dailyTitleIcon" style="display:inline-block;width:28px;height:28px;border-radius:5px;background:linear-gradient(135deg,#5dade2,#2e86c1);color:#fff;font-size:10px;line-height:11px;text-align:center;padding-top:2px;font-weight:bold;vertical-align:middle;margin-right:8px;box-shadow:1px 2px 4px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.3);"><span style="font-size:7px;display:block;line-height:9px;" id="dailyTitleMonth">6</span><span id="dailyTitleDay" style="font-size:13px;display:block;line-height:14px;">1</span></span>日报</h2>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+                <button onclick="dailyPrev()" style="padding:6px 14px;font-size:1.1em;border:1px solid #d5cfc4;border-radius:6px;background:linear-gradient(to bottom,#f8f4ec,#e8e0d0);cursor:pointer;box-shadow:1px 2px 3px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.6);">◀</button>
+                <input type="date" id="dailyDate" onchange="updateDaily()" style="padding:8px 14px;border:1px solid #d5cfc4;border-radius:6px;font-size:1em;">
+                <button onclick="dailyNext()" style="padding:6px 14px;font-size:1.1em;border:1px solid #d5cfc4;border-radius:6px;background:linear-gradient(to bottom,#f8f4ec,#e8e0d0);cursor:pointer;box-shadow:1px 2px 3px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.6);">▶</button>
+                <button onclick="dailyToday()" style="padding:6px 14px;border:1px solid #d5cfc4;border-radius:6px;background:linear-gradient(to bottom,#f8f4ec,#e8e0d0);cursor:pointer;font-size:0.9em;box-shadow:1px 2px 3px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.6);transition:all 0.2s ease;" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='2px 4px 8px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.6)'" onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='1px 2px 3px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.6)'">今天</button>
+            </div>
+            <div id="dailyContent">
+                <p style="color:#999;">请选择日期查看日报</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑采购弹窗 -->
+    <div id="editPurchaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">✏️ 编辑采购记录</div>
+            <input type="hidden" id="editPurchaseId">
+            <div class="form-group">
+                <div><label>到货日期</label><input type="date" id="editPurchaseArrival"></div>
+                <div><label>采购日期</label><input type="date" id="editPurchaseDate"></div>
+                <div><label>供应商</label><input type="text" id="editPurchaseSupplier"></div>
+                <div><label>品种</label><input type="text" id="editPurchaseVariety"></div>
+                <div><label>数量 (斤)</label><input type="number" id="editPurchaseQuantity" step="0.1"></div>
+                <div><label>单价 (元/斤)</label><input type="number" id="editPurchasePrice" step="0.01"></div>
+                <div><label>运费 (元)</label><input type="number" id="editPurchaseShipping" step="0.01"></div>
+                <div><label>是否欠款</label>
+                    <div class="toggle-wrap">
+                        <label class="toggle-switch"><input type="checkbox" id="editPurchaseOwed"><span class="toggle-slider"></span></label>
+                        <span class="toggle-label" id="editPurchaseOwedLabel" style="color:#28a745;">未欠款</span>
+                    </div>
+                </div>
+                <div id="editPurchasePaidWrap"><label>已付金额 (元)</label><input type="number" id="editPurchasePaid" placeholder="欠款时填写" step="0.01" disabled></div>
+                <div><label>付款日期</label><input type="date" id="editPurchasePaidDate"></div>
+                <div><label>备注</label><input type="text" id="editPurchaseNote" placeholder="可选备注"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="saveEditPurchase()">💾 保存</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 收款弹窗 -->
+    <div id="receiveModal" class="modal">
+        <div class="modal-content" style="max-width:420px;background:#eef6ef;border-radius:12px;box-shadow:0 4px 16px rgba(0,80,0,0.10);">
+            <div class="modal-header" style="background:#27ae60;color:#fff;padding:12px 16px;border-radius:8px 8px 0 0;font-size:1.1em;">&#x1f4b0; 收款</div>
+            <div class="modal-body" style="padding:16px;">
+                <div id="receiveInfo" style="background:#e8f5ee;padding:14px;border-radius:8px;font-size:0.95em;line-height:1.9;margin-bottom:14px;border:1px solid #c8e6c9;"></div>
+                <input type="hidden" id="receiveId">
+                <div style="margin-bottom:10px;"><label style="font-weight:bold;display:block;margin-bottom:4px;">应收总额（元）</label><input type="text" id="receiveTotal" readonly style="width:100%;background:#d5ead9;border:1px solid #c8e6c9;border-radius:6px;padding:8px;"></div>
+                <div style="margin-bottom:10px;"><label style="font-weight:bold;display:block;margin-bottom:4px;">减免金额（元）</label><input type="number" id="receiveDiscount" value="0" step="0.01" style="width:100%;border:1px solid #c8e6c9;border-radius:6px;padding:8px;" onfocus="this.select()"></div>
+                <div style="margin-bottom:10px;"><label style="font-weight:bold;display:block;margin-bottom:4px;">收款金额（元）</label><input type="number" id="receiveAmount" step="0.01" style="width:100%;border:1px solid #c8e6c9;border-radius:6px;padding:8px;" onfocus="this.select()"></div>
+                <div style="margin-bottom:10px;"><label style="font-weight:bold;display:block;margin-bottom:4px;">收款日期</label><input type="date" id="receiveDate" style="width:100%;border:1px solid #c8e6c9;border-radius:6px;padding:8px;"></div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;padding:0 16px 16px 16px;">
+                <button class="btn" style="background:#999;color:#fff;border-radius:6px;padding:8px 20px;" onclick="closeReceiveModal()">取消</button>
+                <button class="btn" style="background:#27ae60;color:#fff;font-weight:bold;border-radius:6px;padding:8px 20px;" onclick="confirmReceive()">确认收款</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 编辑销售弹窗 -->
+    <div id="editSalesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">✏️ 编辑销售记录</div>
+            <input type="hidden" id="editSalesId">
+            <div class="form-group">
+                <div><label>日期</label><input type="date" id="editSalesDate"></div>
+                <div><label>客户</label><input type="text" id="editSalesCustomer"></div>
+                <div><label>品种</label><input type="text" id="editSalesVariety"></div>
+                <div><label>数量 (斤)</label><input type="number" id="editSalesQuantity" step="0.1"></div>
+                <div><label>单价 (元/斤)</label><input type="number" id="editSalesPrice" step="0.01"></div>
+                <div><label>运费 (元)</label><input type="number" id="editSalesShipping" step="0.01" oninput="updateEditSalesAmount()"></div>
+                <div><label>应收金额 (元)</label><div id="editSalesAmountDisplay" style="font-size:1.4em;font-weight:bold;color:#28a745;padding:6px 0;min-height:1.6em;">¥0</div></div>
+                <div><label>结款方式</label>
+                    <select id="editSalesPayment">
+                        <option value="微信">微信</option>
+                        <option value="现金">现金</option>
+                        <option value="支付宝">支付宝</option>
+                        <option value="银行转账">银行转账</option>
+                        <option value="月结">月结</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div><label>是否欠款</label>
+                    <div class="toggle-wrap">
+                        <label class="toggle-switch"><input type="checkbox" id="editSalesOwed"><span class="toggle-slider"></span></label>
+                        <span class="toggle-label" id="editSalesOwedLabel" style="color:#28a745;">未欠款</span>
+                    </div>
+                </div>
+                <div><label>抹零/优惠 (元)</label><input type="number" id="editSalesActual" placeholder="留空则无抹零" step="0.01"></div>
+                <div id="editSalesPaidWrap"><label>已收金额 (元)</label><input type="number" id="editSalesPaid" placeholder="欠款时填写" step="0.01" disabled></div>
+                <div><label>备注</label><input type="text" id="editSalesNote" placeholder="可选备注"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="saveEditSales()">💾 保存</button>
+                <button class="btn btn-secondary" onclick="closeEditSalesModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设备设置弹窗 -->
+    <div id="deviceModal" class="modal">
+        <div class="modal-content" style="max-width:320px;">
+            <div class="modal-header">⚙️ 设备设置</div>
+            <div class="form-group">
+                <div><label>设备ID</label><input type="text" id="displayDeviceId" style="background:#ebe6dc;" readonly></div>
+                <div><label>设备名称</label><input type="text" id="inputDeviceName" placeholder="如：办公室电脑" maxlength="20"></div>
+                <div><label>微信收款码</label>
+                    <div style="border:2px dashed #a8ada5;border-radius:8px;padding:10px;text-align:center;background:#ebe6dc;">
+                        <img id="qrCodePreview" src="" style="max-width:180px;max-height:180px;display:none;"><br>
+                        <input type="file" id="qrCodeInput" accept="image/*" style="font-size:0.82em;margin-top:6px;">
+                        <div style="font-size:0.75em;color:#888;margin-top:4px;">上传微信收款二维码</div>
+                    </div>
+                </div>
+                <div style="font-size:0.8em;color:#888;margin-top:8px;">设置名称后，操作记录将显示"名称 (ID)"<br>方便区分多台设备</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="saveDeviceSettings();closeDeviceModal();showToast('✅ 设备设置已保存!')">💾 保存</button>
+                <button class="btn btn-secondary" onclick="closeDeviceModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑损耗弹窗 -->
+    <div id="editLossModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">✏️ 编辑损耗记录</div>
+            <input type="hidden" id="editLossId">
+            <div class="form-group">
+                <div><label>日期</label><input type="date" id="editLossDate"></div>
+                <div><label>采购日期</label><input type="date" id="editLossPurchaseDate"></div>
+                <div><label>供应商</label><input type="text" id="editLossSupplier"></div>
+                <div><label>品种</label><input type="text" id="editLossVariety"></div>
+                <div><label>数量 (斤)</label><input type="number" id="editLossQuantity" step="0.1"></div>
+                <div><label>单价 (元/斤)</label><input type="number" id="editLossPrice" step="0.01" placeholder="可不填"></div>
+                <div><label>原因</label>
+                    <select id="editLossReason">
+                        <option value="正常损耗">正常损耗</option>
+                        <option value="变质">变质</option>
+                        <option value="损伤">损伤</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div><label>备注</label><input type="text" id="editLossNote" placeholder="可选备注"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="saveEditLoss()">💾 保存</button>
+                <button class="btn btn-secondary" onclick="closeEditLossModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" style="color:#dc3545;">⚠️ 确认删除</div>
+            <div id="deleteDetail"></div>
+            <div style="text-align:center;color:#868e96;margin:12px 0;font-size:0.92em;">此操作不可撤销,确定要删除吗?</div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="confirmDelete()">🗑️ 确认删除</button>
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>
+// Auto-update daily tab calendar icon
+(function(){
+    var now = new Date();
+    var m = now.getMonth()+1;
+    var d = now.getDate();
+    var me = document.getElementById('dailyTabMonth');
+    var de = document.getElementById('dailyTabDay');
+    if(me) me.textContent = m;
+    if(de) de.textContent = d;
+})();
+
+        // DEBUG: 测试脚本是否加载
+        window._scriptLoaded = true;
+        var purchaseData = [];
+        var salesData = [];
+        var lossData = [];
+        var operationLogs = [];  // 操作日志
+        var batchItems = [];
+        var purchaseBatchItems = [];
+
+        // 格式化最后操作信息
+        function formatLastOperation(item) {
+            if (!item.lastModified) return '-';
+            var date = new Date(item.lastModified);
+            var month = ('0'+String(date.getMonth() + 1)).slice(-2);
+            var day = ('0'+String(date.getDate())).slice(-2);
+            var hour = ('0'+String(date.getHours())).slice(-2);
+            var minute = ('0'+String(date.getMinutes())).slice(-2);
+            var timeStr = month+'/'+day+' '+hour+':'+minute;
+            var device = item.lastModifiedDevice || '未知';
+            return '<div style="font-size:0.82em;color:#666;line-height:1.4;">'+timeStr+'<br><span style="color:#999;">'+h(device)+'</span></div>';
+        }
+
+        // 设备识别
+        // 设备ID管理
+        function getDeviceId() {
+            var id = localStorage.getItem('xiaolongxia_device_id');
+            if (!id) {
+                id = 'DEV-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+                localStorage.setItem('xiaolongxia_device_id', id);
+            }
+            return id;
+        }
+
+        // 获取设备名称(用户自定义)
+        function getDeviceName() {
+            return localStorage.getItem('xiaolongxia_device_name') || '';
+        }
+
+        // 设置设备名称
+        function setDeviceName(name) {
+            localStorage.setItem('xiaolongxia_device_name', name);
+        }
+
+        // 获取完整设备信息
+        function getDeviceInfo() {
+            var ua = navigator.userAgent;
+            var device = '未知设备';
+            var os = '未知系统';
+
+            // 检测操作系统
+            if (ua.indexOf('Windows NT 10') >= 0) os = 'Windows 10/11';
+            else if (ua.indexOf('Windows NT 6.3') >= 0) os = 'Windows 8.1';
+            else if (ua.indexOf('Windows NT 6.2') >= 0) os = 'Windows 8';
+            else if (ua.indexOf('Windows NT 6.1') >= 0) os = 'Windows 7';
+            else if (ua.indexOf('Mac OS X') >= 0) {
+                var match = ua.match(/Mac OS X (\d+[._]\d+)/);
+                os = match ? 'macOS ' + match[1].replace('_', '.') : 'macOS';
+            }
+            else if (ua.indexOf('Android') >= 0) os = 'Android';
+            else if (ua.indexOf('iPhone') >= 0) os = 'iOS';
+            else if (ua.indexOf('Linux') >= 0) os = 'Linux';
+
+            // 检测浏览器/设备类型
+            if (ua.indexOf('Mobile') >= 0 || ua.indexOf('Android') >= 0 || ua.indexOf('iPhone') >= 0) {
+                device = ua.indexOf('iPhone') >= 0 ? 'iPhone' : (ua.indexOf('iPad') >= 0 ? 'iPad' : '手机');
+            } else {
+                device = '电脑';
+            }
+
+            // 检测浏览器
+            var browser = '';
+            if (ua.indexOf('Edg/') >= 0) browser = 'Edge';
+            else if (ua.indexOf('Chrome/') >= 0) browser = 'Chrome';
+            else if (ua.indexOf('Firefox/') >= 0) browser = 'Firefox';
+            else if (ua.indexOf('Safari/') >= 0 && !ua.indexOf('Chrome') >= 0) browser = 'Safari';
+
+            var browserInfo = device+' / '+os+browser ? ' / ' + browser : '';
+            var deviceId = getDeviceId();
+            var deviceName = getDeviceName();
+
+            // 如果有自定义名称,显示名称+ID;否则显示浏览器信息+ID
+            return deviceName ?
+                deviceName+' ('+deviceId+')' :
+                browserInfo+' ('+deviceId+')';
+        }
+        var currentDevice = getDeviceInfo();
+
+        // 操作日志记录
+        function addLog(action, type, detail) {
+            var log = {
+                id: generateId(),
+                time: Date.now(),
+                timeStr: getLocalToday() + ' ' + new Date().toTimeString().slice(0,8),
+                action: action,
+                type: type,
+                device: currentDevice,
+                detail: detail
+            };
+            operationLogs.unshift(log);
+            if (operationLogs.length > 500) {
+                operationLogs = operationLogs.slice(0, 500);
+            }
+            // 通过 saveData 保存并同步
+            saveData();
+        }
+
+        // 加载日志(从 LOCAL_DATA_KEY 中加载)
+        function loadLogs() {
+            var stored = localStorage.getItem(LOCAL_DATA_KEY);
+            if (stored) {
+                try {
+                    var data = JSON.parse(stored);
+                    if (data.operationLogs) {
+                        operationLogs = data.operationLogs;
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // 工具函数
+        function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 9); }
+        function eq(a, b, eps) { return Math.abs(a - b) < (eps || 0.01); }
+        function getLocalToday() { var n = new Date(); return n.getFullYear()+'-'+('0'+String(n.getMonth()+1)).slice(-2)+'-'+('0'+String(n.getDate())).slice(-2); }
+        var today = getLocalToday();
+function h(t) { var d = document.createElement('div'); d.textContent = t||''; return d.innerHTML; }
+        document.getElementById('purchaseDate').value = today;
+        document.getElementById('purchaseArrival').value = today;
+        document.getElementById('salesDate').value = today;
+        document.getElementById('lossDate').value = today;
+        document.getElementById('lossPurchaseDate').value = today;
+
+        // 欠款开关联动
+        document.getElementById('purchaseOwed').addEventListener('change', function() {
+            var label = document.getElementById('purchaseOwedLabel');
+            label.textContent = this.checked ? '欠款' : '未欠款';
+            label.style.color = this.checked ? '#dc3545' : '#28a745';
+            document.getElementById('purchasePaid').disabled = !this.checked;
+        });
+        document.getElementById('editPurchaseOwed').addEventListener('change', function() {
+            var label = document.getElementById('editPurchaseOwedLabel');
+            label.textContent = this.checked ? '欠款' : '未欠款';
+            label.style.color = this.checked ? '#dc3545' : '#28a745';
+            document.getElementById('editPurchasePaid').disabled = !this.checked;
+        });
+        document.getElementById('salesOwed').addEventListener('change', function() {
+            var label = document.getElementById('salesOwedLabel');
+            var paidField = document.getElementById('salesPaid');
+            if (this.checked) {
+                label.textContent = '欠款';
+                label.style.color = '#dc3545';
+                paidField.disabled = false;
+            } else {
+                label.textContent = '未欠款';
+                label.style.color = '#28a745';
+                paidField.disabled = true;
+                paidField.value = '0';
+            }
+        });
+        document.getElementById('editSalesOwed').addEventListener('change', function() {
+            var label = document.getElementById('editSalesOwedLabel');
+            label.textContent = this.checked ? '欠款' : '未欠款';
+            label.style.color = this.checked ? '#dc3545' : '#28a745';
+            document.getElementById('editSalesPaid').disabled = !this.checked;
+        });
+
+        // Toast 提示
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(function(){ t.classList.remove('show'); }, 2000);
+        }
+
+        // 设备设置弹窗
+        function openDeviceModal() {
+            document.getElementById('displayDeviceId').value = getDeviceId();
+            document.getElementById('inputDeviceName').value = getDeviceName();
+            var qrPreview = document.getElementById('qrCodePreview');
+            var qr = getPayQrCode();
+            if (qr) { qrPreview.src = qr; qrPreview.style.display = 'inline'; }
+            else { qrPreview.src = ''; qrPreview.style.display = 'none'; }
+            var m = document.getElementById('deviceModal');
+            m.classList.add('show');
+            m.style.display = 'flex';
+        }
+        function closeDeviceModal() {
+            // 处理二维码上传
+            var qrInput = document.getElementById('qrCodeInput');
+            var qrPreview = document.getElementById('qrCodePreview');
+            if (qrInput.files && qrInput.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    qrPreview.src = e.target.result;
+                    qrPreview.style.display = 'inline';
+                    localStorage.setItem('xiaolongxia_pay_qr', e.target.result);
+                };
+                reader.readAsDataURL(qrInput.files[0]);
+            }
+            var m = document.getElementById('deviceModal');
+            m.classList.remove('show');
+            m.style.display = 'none';
+        }
+        function saveDeviceSettings() {
+            try {
+                var name = document.getElementById('inputDeviceName').value.trim();
+                setDeviceName(name);
+                currentDevice = getDeviceInfo();
+                // 保存二维码base64
+                var qrInput = document.getElementById('qrCodeInput');
+                var qrPreview = document.getElementById('qrCodePreview');
+                if (qrPreview.src && qrPreview.src !== window.location.href) {
+                    localStorage.setItem('xiaolongxia_pay_qr', qrPreview.src);
+                }
+            } catch(e) { console.error('saveDeviceSettings error:', e); }
+            // 收款码变更后同步到云端
+            xSyncSave();
+        }
+        function getPayQrCode() {
+            return localStorage.getItem('xiaolongxia_pay_qr') || '';
+        }
+
+        async function loadData() {
+            try {
+                var controller = new AbortController();
+                var timer = setTimeout(function() { controller.abort(); }, 5000);
+                var res = await fetch('/api/data', { signal: controller.signal });
+                clearTimeout(timer);
+                if (res.ok) {
+                    var data = await res.json();
+                    purchaseData = data.purchaseData || [];
+                    salesData = data.salesData || [];
+                    lossData = data.lossData || [];
+                    localStorage.setItem('xiaolongxia_data', JSON.stringify({ purchaseData, salesData, lossData }));
+                    renderAll();
+                    return;
+                }
+            } catch (e) {}
+            var stored = localStorage.getItem('xiaolongxia_data');
+            if (stored) {
+                var data = JSON.parse(stored);
+                purchaseData = data.purchaseData || [];
+                salesData = data.salesData || [];
+                lossData = data.lossData || [];
+            }
+            renderAll();
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.content').forEach(function(c) { c.classList.remove('active'); });
+            var btn = document.querySelector('.tab[onclick*="switchTab(\'' + id + '\')"]');
+            if (btn) btn.classList.add('active');
+            document.getElementById(id).classList.add('active');
+            if (id === 'inventory') updateInventory();
+            if (id === 'stats') { updateStats(); renderLogs(); }
+            if (id === 'receivable') updateReceivable();
+            if (id === 'daily') { if (!document.getElementById('dailyDate').value) dailyToday(); else updateDaily(); }
+        }
+ function renderAll() {
+            renderPurchaseTable();
+            renderSalesTable();
+            renderLossTable();
+        }
+
+        function calculateTotal(qty, price) { return (parseFloat(qty)||0) * (parseFloat(price)||0); }
+
+        function updateSalesAmount() {
+            var qty = parseFloat(document.getElementById('salesQuantity').value) || 0;
+            var price = parseFloat(document.getElementById('salesPrice').value) || 0;
+            var shipping = parseFloat(document.getElementById('salesShipping').value) || 0;
+            var total = qty * price + shipping;
+            document.getElementById('salesAmountDisplay').textContent = total > 0 ? '\u00a5' + Math.round(total) : '\u00a50';
+        }
+        function updateEditSalesAmount() {
+            var qty = parseFloat(document.getElementById('editSalesQuantity').value) || 0;
+            var price = parseFloat(document.getElementById('editSalesPrice').value) || 0;
+            var shipping = parseFloat(document.getElementById('editSalesShipping').value) || 0;
+            var total = qty * price + shipping;
+            document.getElementById('editSalesAmountDisplay').textContent = total > 0 ? '¥' + Math.round(total) : '¥0';
+        }
+
+        // 删除确认弹窗
+        var deleteTarget = { type: '', id: 0 };
+        function showDeleteConfirm(type, id) {
+            deleteTarget = { type, id };
+            var html = '';
+            if (type === 'purchase') {
+                var item = purchaseData.find(function(p) { return String(p.id) === String(id); });
+                if (!item) { alert('记录不存在'); return; }
+                html = '<div class="detail-row"><span class="detail-label">类型</span><span>📥 采购入库</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">日期</span><span>'+item.date+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">到货日</span><span>'+(item.arrival||'-')+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">供应商</span><span>'+(h(item.supplier)||'-')+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">品种</span><span>'+h(item.variety)+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">数量</span><span>'+item.quantity+' 斤</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">单价</span><span>¥'+item.price+'/斤</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">运费</span><span>¥'+(item.shipping||0).toFixed(2)+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">总价</span><span style="color:#e67e22;font-weight:bold">¥'+Math.round(item.total + (item.shipping||0))+'</span></div>';
+            } else if (type === 'sales') {
+                var item = salesData.find(function(s) { return String(s.id) === String(id); });
+                if (!item) { alert('记录不存在'); return; }
+                html = '<div class="detail-row"><span class="detail-label">类型</span><span>📤 销售出库</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">日期</span><span>'+item.date+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">客户</span><span>'+(h(item.customer)||'-')+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">品种</span><span>'+h(item.variety)+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">数量</span><span>'+item.quantity+' 斤</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">单价</span><span>¥'+item.price+'/斤</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">运费</span><span>¥'+(item.shipping||0).toFixed(2)+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">金额</span><span style="color:#e67e22;font-weight:bold">¥'+Math.round(item.amount)+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">结款方式</span><span>'+h(item.payment)+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">欠款</span><span>'+(item.owed ? '是' : '否')+'</span></div>';
+            } else if (type === 'loss') {
+                var item = lossData.find(function(l) { return String(l.id) === String(id); });
+                if (!item) { alert('记录不存在'); return; }
+                html = '<div class="detail-row"><span class="detail-label">类型</span><span>⚠️ 损耗记录</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">日期</span><span>'+item.date+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">采购批次</span><span>'+(item.purchaseDate||'-')+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">供应商</span><span>'+(h(item.supplier)||'-')+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">品种</span><span>'+h(item.variety)+'</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">数量</span><span>'+item.quantity+' 斤</span></div>' +
+                    '<div class="detail-row"><span class="detail-label">原因</span><span>'+(h(item.reason)||'-')+'</span></div>';
+            }
+            document.getElementById('deleteDetail').innerHTML = html;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+        function confirmDelete() {
+            var type = deleteTarget.type; var id = deleteTarget.id;
+            var deletedItem = null;
+            if (type === 'purchase') {
+                deletedItem = purchaseData.find(function(item) { return String(item.id) === String(id); });
+                purchaseData = purchaseData.filter(function(item) { return String(item.id) !== String(id); });
+                renderPurchaseTable();
+            } else if (type === 'sales') {
+                deletedItem = salesData.find(function(item) { return String(item.id) === String(id); });
+                salesData = salesData.filter(function(item) { return String(item.id) !== String(id); });
+                renderSalesTable();
+                updateReceivable();
+            } else if (type === 'loss') {
+                deletedItem = lossData.find(function(item) { return String(item.id) === String(id); });
+                lossData = lossData.filter(function(item) { return String(item.id) !== String(id); });
+                renderLossTable();
+            }
+            // 记录删除日志
+            if (deletedItem) {
+                var typeNames = { purchase: '采购入库', sales: '销售出库', loss: '损耗记录' };
+                var detail = type === 'purchase'
+                    ? deletedItem.date+' '+deletedItem.supplier || ''+' '+deletedItem.variety+' '+deletedItem.quantity+'斤 ¥'+deletedItem.price+'/斤'
+                    : type === 'sales'
+                    ? deletedItem.date+' '+deletedItem.customer || ''+' '+deletedItem.variety+' '+deletedItem.quantity+'斤 ¥'+deletedItem.price+'/斤'
+                    : deletedItem.date+' '+deletedItem.variety+' '+deletedItem.quantity+'斤';
+                addLog('delete', type, detail);
+            }
+            saveData();
+            updateStats();
+            updateInventory();
+            closeDeleteModal();
+        }
+        function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); }
+
+        // 采购 - 单条
+        function addPurchase() {
+            var date = document.getElementById('purchaseDate').value;
+            var supplier = document.getElementById('purchaseSupplier').value;
+            var variety = document.getElementById('purchaseVariety').value;
+            var quantity = parseFloat(document.getElementById('purchaseQuantity').value) || 0;
+            var price = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            var shipping = parseFloat(document.getElementById('purchaseShipping').value) || 0;
+            var amount = quantity * price + shipping;
+            var note = document.getElementById('purchaseNote').value.trim();
+            if (!date || !variety || quantity <= 0 || price <= 0) { alert('请填写完整信息'); return; }
+            var html = '<div>'
+                + '<b>日期：</b> ' + date + '<br>'
+                + '<b>供应商：</b> ' + (supplier || '-') + '<br>'
+                + '<b>品种：</b> ' + variety + '<br>'
+                + '<b>数量：</b> ' + quantity + ' 斤<br>'
+                + '<b>单价：</b> ' + price.toFixed(2) + '/斤<br>'
+                + '<b>运费：</b> ' + shipping.toFixed(0) + ' 元<br>'
+                + '<b>总额：</b> ' + amount.toFixed(0) + ' 元<br>';
+            if (note) html += '<b>备注：</b> ' + note + '<br>';
+            html += '</div>';
+            showPreviewModal('添加采购记录', html, '确认添加', function() {
+                purchaseData.push({ id: generateId(), date: date, supplier: supplier, variety: variety, quantity: quantity, price: price, shipping: shipping, amount: amount, note: note, arrival: date, lastModified: Date.now(), lastModifiedDevice: currentDevice });
+                addLog('add', 'purchase', date + ' ' + (supplier||'') + ' ' + variety + ' ' + quantity + ' 斤 ¥' + price + '/斤');
+                renderPurchaseTable();
+                saveData();
+                updateStats();
+                updateInventory();
+                document.getElementById('purchaseSupplier').value = '';
+                document.getElementById('purchaseVariety').value = '';
+                document.getElementById('purchaseQuantity').value = '';
+                document.getElementById('purchasePrice').value = '';
+                document.getElementById('purchaseShipping').value = '';
+                document.getElementById('purchaseNote').value = '';
+                alert('添加成功');
+            });
+        }
+
+        function renderPurchaseTable() {
+            var sorted = purchaseData.slice().sort(function(a, b) { var av = (a.arrival||a.date||''); var bv = (b.arrival||b.date||''); return bv.localeCompare(av) || String(b.id).localeCompare(String(a.id)); });
+            document.getElementById('purchaseTable').innerHTML = sorted.map(function(item) {
+                var arrivalShort = item.arrival ? item.arrival.slice(5) : '-';
+                var dateFull = item.date || '-';
+                var paidDateShort = item.paidDate ? item.paidDate.slice(5) : '';
+                var paidDateNote = (paidDateShort && paidDateShort !== item.date.slice(5)) ? '<br><small style="color:#999">'+paidDateShort+'</small>' : '';
+                var owedHtml = item.owed ? '\u00a5'+Math.round(item.total-(item.paid||0)) : '-';
+                return '<tr class="data-row" data-id="'+item.id+'" onclick="toggleRow(this)">' +
+                    '<td>'+arrivalShort+'</td>' +
+                    '<td>'+dateFull+'</td>' +
+                    '<td>'+h(item.supplier)+'</td>' +
+                    '<td>'+h(item.variety)+'</td>' +
+                    '<td>'+item.quantity+'</td>' +
+                    '<td>\u00a5'+item.price.toFixed(2)+'</td>' +
+                    '<td class="col-optional">\u00a5'+Math.round(item.total)+'</td>' +
+                    '<td class="col-optional">\u00a5'+item.shipping.toFixed(2)+'</td>' +
+                    '<td class="col-optional">\u00a5'+Math.round(item.paid||0)+paidDateNote+'</td>' +
+                    '<td class="col-optional" style="white-space:nowrap">'+owedHtml+'</td>' +
+                    '<td class="col-optional note-cell"><span title="'+h(item.note||'')+'">'+h(item.note||'-')+'</span></td>' +
+                    '<td class="col-optional last-op-cell">'+formatLastOperation(item)+'</td>' +
+                    '<td class="col-action"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();editPurchase(\x27'+item.id+'\x27)">\u270f\ufe0f</button> <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();showDeleteConfirm(\x27purchase\x27, \x27'+item.id+'\x27)">\u5220\u9664</button></td>' +
+                '</tr>';
+            }).join('');
+        }
+
+        function editPurchase(id) {
+            var item = purchaseData.find(function(p) { return String(p.id) === String(id); });
+            if (!item) { alert('记录不存在'); return; }
+            document.getElementById('editPurchaseId').value = id;
+            document.getElementById('editPurchaseDate').value = item.date;
+            document.getElementById('editPurchaseArrival').value = item.arrival || '';
+            document.getElementById('editPurchaseSupplier').value = item.supplier;
+            document.getElementById('editPurchaseVariety').value = item.variety;
+            document.getElementById('editPurchaseQuantity').value = item.quantity;
+            document.getElementById('editPurchasePrice').value = item.price;
+            document.getElementById('editPurchaseShipping').value = item.shipping;
+            document.getElementById('editPurchaseOwed').checked = item.owed || false;
+            var pLabel = document.getElementById('editPurchaseOwedLabel');
+            pLabel.textContent = item.owed ? '欠款' : '未欠款';
+            pLabel.style.color = item.owed ? '#dc3545' : '#28a745';
+            document.getElementById('editPurchasePaid').value = item.paid || 0;
+            document.getElementById('editPurchasePaid').disabled = !item.owed;
+            document.getElementById('editPurchasePaidDate').value = item.paidDate || '';
+            document.getElementById('editPurchaseNote').value = item.note || '';
+            document.getElementById('editPurchaseModal').classList.add('show');
+        }
+
+        function saveEditPurchase() {
+            var id = document.getElementById('editPurchaseId').value;
+            var item = purchaseData.find(function(p) { return String(p.id) === String(id); });
+            if (!item) return;
+            if (!document.getElementById('editPurchaseDate').value) { alert('日期不能为空'); return; }
+            item.date = document.getElementById('editPurchaseDate').value;
+            item.arrival = document.getElementById('editPurchaseArrival').value;
+            item.supplier = document.getElementById('editPurchaseSupplier').value;
+            item.variety = document.getElementById('editPurchaseVariety').value;
+            item.quantity = parseFloat(document.getElementById('editPurchaseQuantity').value) || 0;
+            item.price = parseFloat(document.getElementById('editPurchasePrice').value) || 0;
+            item.shipping = parseFloat(document.getElementById('editPurchaseShipping').value) || 0;
+            item.total = item.quantity * item.price;
+            item.owed = document.getElementById('editPurchaseOwed').checked;
+            item.paid = item.owed ? (parseFloat(document.getElementById('editPurchasePaid').value) || 0) : item.total;
+            item.paidDate = document.getElementById('editPurchasePaidDate').value || item.date;
+            item.note = document.getElementById('editPurchaseNote').value.trim();
+            item.lastModified = Date.now();
+            item.lastModifiedDevice = currentDevice;
+            addLog('edit', 'purchase', item.date+' '+item.supplier||''+' '+item.variety+' '+item.quantity+'斤 ¥'+item.price+'/斤');
+            saveData();
+            renderPurchaseTable();
+            updateStats();
+            updateInventory();
+            closeEditModal();
+            alert('保存成功!');
+        }
+
+        function closeEditModal() { document.getElementById('editPurchaseModal').classList.remove('show'); }
+
+        // 采购 - 批量
+        function togglePurchaseBatch(show) {
+            var section = document.getElementById('purchaseBatchSection');
+            if (show === undefined) show = section.style.display === 'none';
+            if (show) {
+                var variety = document.getElementById('purchaseVariety').value;
+                var quantity = document.getElementById('purchaseQuantity').value;
+                var price = document.getElementById('purchasePrice').value;
+                var moveIds = ['purchaseVariety','purchaseQuantity','purchasePrice'];
+                for (var i = 0; i < moveIds.length; i++) {
+                    var el = document.getElementById(moveIds[i]);
+                    el.dataset.moved = '1';
+                    el.disabled = true;
+                }
+                purchaseBatchItems = [];
+                purchaseBatchItems.push({ variety: variety, quantity: quantity, price: price });
+                purchaseBatchItems.push({ variety: '', quantity: '', price: '' });
+                renderPurchaseBatchItems();
+                document.getElementById('batchPurchaseOwed').checked = false;
+                document.getElementById('batchPurchaseOwedLabel').textContent = '未欠款';
+                document.getElementById('batchPurchaseOwedLabel').style.color = '#28a745';
+                document.getElementById('batchPurchasePaid').value = '';
+                document.getElementById('batchPurchasePaid').disabled = true;
+                document.getElementById('batchPurchasePaidDate').value = '';
+                section.style.display = 'block';
+            } else {
+                var moveIds2 = ['purchaseVariety','purchaseQuantity','purchasePrice'];
+                for (var j = 0; j < moveIds2.length; j++) {
+                    var el2 = document.getElementById(moveIds2[j]);
+                    if (el2.dataset.moved === '1') {
+                        el2.disabled = false;
+                        delete el2.dataset.moved;
+                    }
+                }
+                section.style.display = 'none';
+            }
+        }
+        function addPurchaseBatchItem() {
+            purchaseBatchItems.push({ variety: '', quantity: '', price: '' });
+            renderPurchaseBatchItems();
+        }
+        function renderPurchaseBatchItems() {
+            var container = document.getElementById('purchaseBatchItems');
+            container.innerHTML = purchaseBatchItems.map(function(item, idx) {
+                return '<div class="batch-item">' +
+                    '<input type="text" placeholder="品种" value="'+h(item.variety)+'" onchange="purchaseBatchItems['+idx+'].variety=this.value">' +
+                    '<input type="number" placeholder="数量" step="0.1" value="'+item.quantity+'" onchange="purchaseBatchItems['+idx+'].quantity=this.value">' +
+                    '<input type="number" placeholder="单价" step="0.01" value="'+item.price+'" onchange="purchaseBatchItems['+idx+'].price=this.value">' +
+                    '<button class="btn btn-danger" onclick="purchaseBatchItems.splice('+idx+',1);renderPurchaseBatchItems()">删除</button>' +
+                '</div>';
+            }).join('')
+        }
+        function submitPurchaseBatch() {
+            var date = document.getElementById('purchaseDate').value;
+            var arrival = document.getElementById('purchaseArrival').value;
+            var supplier = document.getElementById('purchaseSupplier').value;
+            var shipping = parseFloat(document.getElementById('purchaseShipping').value) || 0;
+            var owed = document.getElementById('batchPurchaseOwed').checked;
+            var paidAmt = owed ? (parseFloat(document.getElementById('batchPurchasePaid').value) || 0) : 0;
+            var paidDate = document.getElementById('batchPurchasePaidDate').value || date;
+            if (!date || !supplier) { alert('请填写日期和供应商'); return; }
+            var hasExisting = purchaseData.some(function(r){ return r.date === date && r.supplier === supplier; });
+            var batchTotal = 0;
+            var previewLines = [];
+            for (var i = 0; i < purchaseBatchItems.length; i++) {
+                var item = purchaseBatchItems[i];
+                if (item.variety && item.quantity && item.price) {
+                    var q = parseFloat(item.quantity);
+                    var p = parseFloat(item.price);
+                    batchTotal += q * p;
+                    previewLines.push(item.variety + ' × ' + q + ' 斤 × ' + p.toFixed(2) + ' = ' + (q * p).toFixed(0) + ' 元');
+                }
+            }
+            if (!hasExisting) batchTotal += shipping;
+            if (batchTotal <= 0) { alert('请至少填写一个商品'); return; }
+            var html = '<div>'
+                + '<b>日期：</b> ' + date + '<br>'
+                + '<b>到货：</b> ' + (arrival || date) + '<br>'
+                + '<b>供应商：</b> ' + supplier + '<br>'
+                + '<b>运费：</b> ' + shipping.toFixed(0) + ' 元<br>'
+                + '<hr style="margin:6px 0;border-color:#b9d9bb;">';
+            for (var j = 0; j < previewLines.length; j++) {
+                html += '• ' + previewLines[j] + '<br>';
+            }
+            html += '<hr style="margin:6px 0;border-color:#b9d9bb;">'
+                + '<b>合计：</b> ' + batchTotal.toFixed(0) + ' 元<br>'
+                + '<b>付款：</b> ' + (owed ? '欠款（已付 ' + paidAmt.toFixed(0) + ' 元）' : '已付清') + '<br>'
+                + '</div>';
+            showPreviewModal('批量采购（' + previewLines.length + ' 条）', html, '确认添加', function() {
+                var ratio = paidAmt / batchTotal;
+                var count = 0;
+                for (var k = 0; k < purchaseBatchItems.length; k++) {
+                    var it = purchaseBatchItems[k];
+                    if (it.variety && it.quantity && it.price) {
+                        var qty = parseFloat(it.quantity);
+                        var prc = parseFloat(it.price);
+                        var itemShipping = (!hasExisting && count === 0) ? shipping : 0;
+                        var itemPaid = owed ? qty * prc * ratio : qty * prc;
+                        purchaseData.push({ id: generateId(), date: date, arrival: arrival, supplier: supplier, variety: it.variety, quantity: qty, price: prc, total: qty * prc, shipping: itemShipping, owed: owed, paid: itemPaid, paidDate: paidDate, note: '', lastModified: Date.now(), lastModifiedDevice: currentDevice });
+                        count++;
+                    }
+                }
+                if (count > 0) {
+                    addLog('add', 'purchase', '批量添加' + count + '条 ' + supplier + ' ' + date);
+                    var debtAmt = batchTotal - paidAmt;
+                    renderPurchaseTable();
+                    updateStats();
+                    updateInventory();
+                    saveData();
+                    purchaseBatchItems = [];
+                    document.getElementById('purchaseBatchSection').style.display = 'none';
+                    document.getElementById('batchPurchaseOwed').checked = false;
+                    document.getElementById('batchPurchaseOwedLabel').textContent = '未欠款';
+                    document.getElementById('batchPurchaseOwedLabel').style.color = '#28a745';
+                    document.getElementById('batchPurchasePaid').value = '';
+                    document.getElementById('batchPurchasePaid').disabled = true;
+                    document.getElementById('batchPurchasePaidDate').value = '';
+                    var clearIds = ['purchaseVariety','purchaseQuantity','purchasePrice','purchaseSupplier','purchaseShipping'];
+                    for (var m = 0; m < clearIds.length; m++) {
+                        var el = document.getElementById(clearIds[m]);
+                        el.value = '';
+                        el.disabled = false;
+                        delete el.dataset.moved;
+                    }
+                    document.getElementById('purchaseOwed').checked = false;
+                    document.getElementById('purchaseOwedLabel').textContent = '未欠款';
+                    document.getElementById('purchaseOwedLabel').style.color = '#28a745';
+                    document.getElementById('purchasePaid').value = '';
+                    document.getElementById('purchasePaid').disabled = true;
+                    document.getElementById('purchasePaidDate').value = '';
+                    alert('成功添加 ' + count + ' 条记录' + (owed ? '（已付 ' + Math.round(paidAmt) + ' 元，欠款 ' + Math.round(debtAmt) + ' 元）' : '（已付清）'));
+                }
+            });
+        }
+
+        // 销售 - 单条
+        function addSales() {
+            var date = document.getElementById('salesDate').value;
+            var customer = document.getElementById('salesCustomer').value;
+            var variety = document.getElementById('salesVariety').value;
+            var quantity = parseFloat(document.getElementById('salesQuantity').value) || 0;
+            var price = parseFloat(document.getElementById('salesPrice').value) || 0;
+            var shipping = parseFloat(document.getElementById('salesShipping').value) || 0;
+            var payment = document.getElementById('salesPayment').value;
+            var amount = calculateTotal(quantity, price) + shipping;
+            var owed = document.getElementById('salesOwed').checked;
+            var discount = parseFloat(document.getElementById('salesActual').value) || 0;
+            discount = Math.max(0, Math.round(discount));
+            var actualAmount = amount - discount;
+            var paid;
+            if (owed) {
+                paid = parseFloat(document.getElementById('salesPaid').value) || 0;
+            } else {
+                paid = actualAmount;
+            }
+            if (eq(paid, actualAmount) || paid > actualAmount) owed = false;
+            if (!date || !variety || quantity <= 0 || price <= 0) { alert('请填写完整信息'); return; }
+            var note = document.getElementById('salesNote').value.trim();
+            var html = '<div>'
+                + '<b>日期：</b> ' + date + '<br>'
+                + '<b>客户：</b> ' + (customer || '-') + '<br>'
+                + '<b>品种：</b> ' + variety + '<br>'
+                + '<b>数量：</b> ' + quantity + ' 斤<br>'
+                + '<b>单价：</b> ' + price.toFixed(2) + '/斤<br>'
+                + '<b>运费：</b> ' + shipping.toFixed(0) + ' 元<br>'
+                + '<b>总额：</b> ' + amount.toFixed(0) + ' 元<br>';
+            if (discount > 0) html += '<b>抹零：</b> -' + discount + ' 元<br><b>实收：</b> ' + actualAmount.toFixed(0) + ' 元<br>';
+            html += '<b>付款：</b> ' + (owed ? '欠款（已付 ' + paid.toFixed(0) + ' 元）' : '已付清') + '<br>';
+            if (note) html += '<b>备注：</b> ' + note + '<br>';
+            html += '</div>';
+            showPreviewModal('添加销售记录', html, '确认添加', function() {
+                salesData.push({ id: generateId(), date: date, customer: customer, variety: variety, quantity: quantity, price: price, shipping: shipping, amount: amount, payment: payment, owed: owed, paid: paid, discount: discount, note: note, lastModified: Date.now(), lastModifiedDevice: currentDevice });
+                addLog('add', 'sales', date + ' ' + (customer||'') + ' ' + variety + ' ' + quantity + ' 斤 ¥' + price + '/斤');
+                renderSalesTable();
+                saveData();
+                updateReceivable();
+                updateStats();
+                updateInventory();
+                document.getElementById('salesCustomer').value = '';
+                document.getElementById('salesVariety').value = '';
+                document.getElementById('salesQuantity').value = '';
+                document.getElementById('salesPrice').value = '';
+                document.getElementById('salesShipping').value = '';
+                document.getElementById('salesOwed').checked = false;
+                document.getElementById('salesOwedLabel').textContent = '未欠款';
+                document.getElementById('salesOwedLabel').style.color = '#28a745';
+                document.getElementById('salesActual').value = '';
+                document.getElementById('salesPaid').value = '';
+                document.getElementById('salesPaid').disabled = true;
+                document.getElementById('salesAmountDisplay').textContent = '0';
+                document.getElementById('salesNote').value = '';
+                alert('添加成功');
+            });
+        }
+
+        function renderSalesTable() {
+            var sorted = salesData.slice().sort(function(a, b) { return (b.date||'').localeCompare(a.date||'') || String(b.id).localeCompare(String(a.id)); });
+            document.getElementById('salesTable').innerHTML = sorted.map(function(item) {
+                var dateShort = item.date ? item.date.slice(5) : '-';
+                var owed = item.owed;
+                var paid = item.paid || 0;
+                var hist = (item.receiveDates||[]).map(function(r){ var rd = r.date ? r.date.slice(5) : '-'; return '<div style="font-size:0.78em;color:#333;margin-top:2px;">\u00a5'+Math.round(r.amount)+'<br><span style="color:#999;">'+rd+'</span></div>'; }).join('');
+                var discountBadge = (item.discount && item.discount > 0) ? '<span style="color:#9b59b6;font-size:0.78em;">[\u00a5'+Math.round(item.discount)+']</span> ' : '';
+                var statusHtml = '';
+                if (eq(paid, item.amount - (item.discount||0)) || paid > item.amount - (item.discount||0)) {
+                    statusHtml = '<div style="color:#28a745;font-weight:bold;font-size:0.85em;">\u5df2\u4ed8\u6e05</div>' + discountBadge + hist;
+                } else if (paid > 0) {
+                    statusHtml = '<div style="color:#e67e22;font-weight:bold;font-size:0.85em;">\u5df2\u6536 \u00a5'+Math.round(paid)+'</div>' + discountBadge + hist;
+                } else {
+                    statusHtml = discountBadge + '<div style="color:#dc3545;font-weight:bold;font-size:0.85em;">\u6b20\u6b3e \u00a5'+Math.round(item.amount-paid-(item.discount||0))+'</div>';
+                }
+                return '<tr class="data-row" data-id="'+item.id+'" onclick="toggleRow(this)">' +
+                    '<td>'+dateShort+'</td><td>'+h(item.customer)+'</td><td>'+h(item.variety)+'</td>' +
+                    '<td>'+item.quantity+'</td><td>\u00a5'+item.price.toFixed(2)+'</td><td class="col-optional">\u00a5'+item.shipping.toFixed(2)+'</td>' +
+                    '<td class="col-optional">\u00a5'+Math.round(item.amount)+'</td><td class="col-optional">'+h(item.payment)+'</td>' +
+                    '<td class="col-optional" style="max-width:100px;line-height:1.4;">'+statusHtml+'</td>' +
+                    '<td class="col-optional note-cell"><span title="'+h(item.note||'')+'">'+h(item.note||'-')+'</span></td>' +
+                    '<td class="col-optional last-op-cell">'+formatLastOperation(item)+'</td>' +
+                    '<td class="col-action"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();editSales(\x27'+item.id+'\x27)">\u270f\ufe0f</button> <button class="btn btn-success btn-sm" onclick="printSlip(\x27'+item.id+'\x27)">\ud83d\udda8\ufe0f</button> <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();showDeleteConfirm(\x27sales\x27, \x27'+item.id+'\x27)">\u5220\u9664</button></td>' +
+                '</tr>';
+            }).join('');
+        }
+
+        function editSales(id) {
+            var item = salesData.find(function(s) { return String(s.id) === String(id); });
+            if (!item) { alert('记录不存在'); return; }
+            document.getElementById('editSalesId').value = item.id;
+            document.getElementById('editSalesDate').value = item.date;
+            document.getElementById('editSalesCustomer').value = item.customer || '';
+            document.getElementById('editSalesVariety').value = item.variety;
+            document.getElementById('editSalesQuantity').value = item.quantity;
+            document.getElementById('editSalesPrice').value = item.price;
+            document.getElementById('editSalesShipping').value = item.shipping || 0;
+            document.getElementById('editSalesPayment').value = item.payment;
+            document.getElementById('editSalesOwed').checked = item.owed || false;
+            var eLabel = document.getElementById('editSalesOwedLabel');
+            eLabel.textContent = item.owed ? '欠款' : '未欠款';
+            eLabel.style.color = item.owed ? '#dc3545' : '#28a745';
+            document.getElementById('editSalesPaid').disabled = !item.owed;
+            document.getElementById('editSalesPaid').value = item.paid || 0;
+            var calc = item.quantity * item.price + (item.shipping||0);
+            document.getElementById('editSalesActual').value = item.discount || '';
+            document.getElementById('editSalesNote').value = item.note || '';
+            document.getElementById('editSalesModal').classList.add('show');
+            updateEditSalesAmount();
+        }
+        function saveEditSales() {
+            var id = document.getElementById('editSalesId').value;
+            var item = salesData.find(function(s) { return String(s.id) === String(id); });
+            if (!item) return;
+            if (!document.getElementById('editSalesDate').value) { alert('日期不能为空'); return; }
+            var oldPaid = item.paid || 0;
+            item.date = document.getElementById('editSalesDate').value;
+            item.customer = document.getElementById('editSalesCustomer').value;
+            item.variety = document.getElementById('editSalesVariety').value;
+            item.quantity = parseFloat(document.getElementById('editSalesQuantity').value) || 0;
+            item.price = parseFloat(document.getElementById('editSalesPrice').value) || 0;
+            item.shipping = parseFloat(document.getElementById('editSalesShipping').value) || 0;
+            item.amount = item.quantity * item.price + item.shipping;
+            item.payment = document.getElementById('editSalesPayment').value;
+            item.owed = document.getElementById('editSalesOwed').checked;
+            // 抹零/优惠字段：直接读减免金额
+            item.discount = Math.max(0, Math.round(parseFloat(document.getElementById('editSalesActual').value) || 0));
+            var editActualAmount = item.amount - item.discount;
+            if (item.owed) {
+                item.paid = parseFloat(document.getElementById('editSalesPaid').value) || 0;
+            } else {
+                item.paid = editActualAmount;
+            }
+            // 如果paid增加,记录收款时间戳和设备信息
+            if (item.paid > oldPaid) {
+                var receivedAmount = item.paid - oldPaid;
+                if (!item.receiveDates) item.receiveDates = [];
+                item.receiveDates.push({ amount: receivedAmount, date: item.date, device: currentDevice });
+                item.lastReceiveDate = item.date;
+            }
+            item.note = document.getElementById('editSalesNote').value.trim();
+            item.lastModified = Date.now();
+            item.lastModifiedDevice = currentDevice;  // 记录最后编辑设备
+            addLog('edit', 'sales', item.date+' '+item.customer||''+' '+item.variety+' '+item.quantity+'斤 ¥'+item.price+'/斤');
+            saveData();
+            renderSalesTable();
+            updateStats();
+            updateInventory();
+            updateReceivable();
+            closeEditSalesModal();
+        }
+        function closeEditSalesModal() { document.getElementById('editSalesModal').classList.remove('show'); }
+        function closeEditLossModal() { document.getElementById('editLossModal').classList.remove('show'); }
+
+        // 打印小票
+        function printSlip(id) {
+            // 统一按钮样式函数
+            function getBtnStyle(t){var b='display:block;margin:10px auto;padding:12px 28px;font-size:16px;font-weight:600;color:#fff;border:none;border-radius:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 8px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.3);';if(t==='primary')return b+'background:linear-gradient(145deg,#27ae60,#219a52);text-shadow:0 1px 2px rgba(0,0,0,0.3);';if(t==='secondary')return b+'background:linear-gradient(145deg,#3498db,#2980b9);text-shadow:0 1px 2px rgba(0,0,0,0.3);';return b+'background:linear-gradient(145deg,#95a5a6,#7f8c8d);text-shadow:0 1px 2px rgba(0,0,0,0.2);'}
+            try {
+            showToast('正在生成小票...');
+            var item = salesData.find(function(s) { return String(s.id) === String(id); });
+            if (!item) return;
+            var groupKey = (item.customer || '') + '|' + item.date;
+            var groupItems = salesData.filter(function(s) { return (s.customer||'') + '|' + s.date === groupKey; });
+
+            var html = '<div style="width:320px;font-family:monospace;font-size:14px;padding:16px;background:#f5f0e8;color:#000;">';
+            html += '<div style="text-align:center;font-size:18px;font-weight:bold;border-bottom:2px dashed #999;padding-bottom:10px;margin-bottom:10px;">🦞裕丰海鲜销售出库单🦀</div>';
+            html += '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>日期：' + item.date + '</span><span>客户：' + (item.customer||'-') + '</span></div>';
+            html += '<div style="border-top:1px dashed #999;border-bottom:1px dashed #999;padding:6px 0;margin-bottom:8px;display:flex;justify-content:space-around;font-weight:bold;"><span>品名</span><span>数量</span><span>单价</span><span>金额</span></div>';
+
+            var totalOriginal = 0, totalDiscount = 0, totalShip = 0;
+            groupItems.forEach(function(i) {
+                var lineAmt = i.quantity * i.price; // 货款（不含运费）
+                html += '<div style="display:flex;justify-content:space-around;padding:3px 0;">' +
+                    '<span style="width:80px;">' + i.variety + '</span>' +
+                    '<span style="width:50px;text-align:right;">' + i.quantity + '斤</span>' +
+                    '<span style="width:50px;text-align:right;">¥' + i.price.toFixed(2) + '</span>' +
+                    '<span style="width:50px;text-align:right;">¥' + Math.round(lineAmt) + '</span></div>';
+                totalOriginal += i.amount; // amount含运费，是原价
+                totalDiscount += (i.discount||0);
+                totalShip += (i.shipping||0);
+            });
+
+            // 运费单列
+            if (totalShip > 0) {
+                html += '<div style="display:flex;justify-content:space-around;padding:3px 0;border-top:1px dashed #ccc;">' +
+                    '<span style="width:80px;">运费</span>' +
+                    '<span style="width:50px;"></span>' +
+                    '<span style="width:50px;"></span>' +
+                    '<span style="width:50px;text-align:right;">¥' + Math.round(totalShip) + '</span></div>';
+            }
+
+            var paid = groupItems.reduce(function(sum, i) { return sum + (i.paid || 0); }, 0);
+
+            html += '<div style="border-top:2px dashed #999;padding-top:8px;margin-top:6px;">';
+            html += '<div style="display:flex;justify-content:space-between;font-weight:bold;font-size:16px;"><span>合计</span><span>¥' + Math.round(totalOriginal) + '</span></div>';
+            html += '<div style="display:flex;justify-content:space-between;"><span>应收</span><span>¥' + Math.round(totalOriginal) + '</span></div>';
+            if (totalDiscount > 0) html += '<div style="display:flex;justify-content:space-between;color:red;"><span>抹零</span><span>¥' + totalDiscount + '</span></div>';
+            html += '<div style="display:flex;justify-content:space-between;color:#07c160;font-weight:bold;"><span>实收</span><span>¥' + Math.round(paid) + '</span></div>';
+            var owed = totalOriginal - totalDiscount - paid;
+            if (owed > 0.5) html += '<div style="display:flex;justify-content:space-between;color:red;font-weight:bold;font-size:16px;"><span>欠款</span><span>¥' + Math.round(owed) + '</span></div>';
+            if (item.payment) html += '<div style="display:flex;justify-content:space-between;"><span>结款方式</span><span>' + item.payment + '</span></div>';
+
+            var hist = [];
+            groupItems.forEach(function(i) { (i.receiveDates||[]).forEach(function(r) { hist.push(r); }); });
+            hist.sort(function(a,b) { return (a.date||'').localeCompare(b.date||''); });
+            if (hist.length > 0) {
+                html += '<div style="border-top:1px dashed #999;margin-top:8px;padding-top:6px;"><div style="font-weight:bold;margin-bottom:4px;">收款记录</div>';
+                hist.forEach(function(r) {
+                    html += '<div style="font-size:0.85em;padding:2px 0;">¥' + Math.round(r.amount) + ' × ' + r.date + '</div>';
+                });
+                html += '</div>';
+            }
+
+            var qr = getPayQrCode();
+            if (qr) {
+                var remainOwed = owed;
+                html += '<div style="border-top:2px dashed #999;margin-top:10px;padding-top:10px;text-align:center;">';
+                if (remainOwed > 0.5) html += '<div style="font-size:20px;color:red;font-weight:bold;margin-bottom:8px;">扫码付款 ¥' + Math.round(remainOwed) + '</div>';
+                else html += '<div style="font-size:0.9em;color:#666;margin-bottom:8px;">微信收款</div>';
+                html += '<img src="' + qr + '" style="width:140px;height:140px;border:1px solid #eee;"></div>';
+            }
+
+            html += '</div></div>';
+
+            var printArea = document.getElementById('printArea');
+            printArea.innerHTML = html;
+            printArea.style.display = 'flex';
+
+            // 检测是否手机端
+            var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            showToast(isMobile ? '手机端：已生成小票' : '桌面端：已生成小票');
+
+            if (isMobile) {
+                // 手机端：显示小票预览 + 保存图片按钮
+                var saveBtn = document.createElement('button');
+                saveBtn.textContent = '📸 保存/转发';
+                saveBtn.style.cssText = getBtnStyle('primary');
+                saveBtn.onclick = function() {
+                    if (typeof html2canvas !== 'undefined') {
+                        html2canvas(printArea.firstElementChild, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
+                            // 将canvas转为img标签替换预览内容，方便长按保存/转发
+                            var img = document.createElement('img');
+                            img.src = canvas.toDataURL('image/png');
+                            img.style.cssText = 'max-width:100%;border-radius:8px;';
+                            // 清掉小票HTML，换成图片
+                            var slipEl = printArea.querySelector('.slip-container') || printArea.firstElementChild;
+                            if (slipEl) slipEl.style.display = 'none';
+                            printArea.insertBefore(img, printArea.firstChild);
+                            // 更新按钮文字和功能
+                            saveBtn.textContent = '🔁 系统分享';
+                            saveBtn.onclick = function() {
+                                canvas.toBlob(function(blob) {
+                                    var file = new File([blob], '销售单_' + item.date + '.png', { type: 'image/png' });
+                                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                                        navigator.share({ files: [file], title: '销售单 - ' + (item.customer||'') }).catch(function(e) {
+                                            if (e.name !== 'AbortError') showToast('分享取消或失败');
+                                        });
+                                    } else {
+                                        downloadBlob(blob);
+                                        showToast('长按上方图片可保存或转发到微信');
+                                    }
+                                }, 'image/png');
+                            };
+                            showToast('长按图片可保存或转发到微信');
+                        }).catch(function(e) {
+                            showToast('生成图片失败，请手动截图保存');
+                        });
+                    } else {
+                        showToast('图片库未加载，请手动截图保存');
+                    }
+                };
+                var closeBtn = document.createElement('button');
+                closeBtn.textContent = '✕ 关闭';
+                closeBtn.style.cssText = getBtnStyle('cancel');
+                closeBtn.onclick = function() { printArea.style.display = 'none'; printArea.innerHTML = ''; };
+                printArea.appendChild(saveBtn);
+                var mobilePrintBtn = document.createElement('button');
+                mobilePrintBtn.textContent = '🖨️ 打印';
+                mobilePrintBtn.style.cssText = getBtnStyle('secondary');
+                mobilePrintBtn.onclick = function() { window.print(); };
+                printArea.appendChild(mobilePrintBtn);
+                printArea.appendChild(closeBtn);
+            } else {
+                // 桌面端：直接生成图片预览
+                if (typeof html2canvas !== 'undefined') {
+                    html2canvas(printArea.firstElementChild, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
+                        var img = document.createElement('img');
+                        img.src = canvas.toDataURL('image/png');
+                        img.style.cssText = 'max-width:100%;border-radius:8px;';
+                        var slipEl = printArea.querySelector('.slip-container') || printArea.firstElementChild;
+                        if (slipEl) slipEl.style.display = 'none';
+                        printArea.insertBefore(img, printArea.firstChild);
+                        var deskDownBtn = document.createElement('button');
+                        deskDownBtn.textContent = '💾 下载图片';
+                        deskDownBtn.style.cssText = getBtnStyle('primary');
+                        deskDownBtn.onclick = function() {
+                            canvas.toBlob(function(blob) { downloadBlob(blob); }, 'image/png');
+                        };
+                printArea.appendChild(deskDownBtn);
+                        var deskPrintBtn = document.createElement('button');
+                        deskPrintBtn.textContent = '🖨️ 打印';
+                        deskPrintBtn.style.cssText = getBtnStyle('secondary');
+                        deskPrintBtn.onclick = function() { window.print(); };
+                        printArea.appendChild(deskPrintBtn);
+                    }).catch(function(e) {
+                        showToast('生成图片失败');
+                    });
+                }
+                var deskCloseBtn = document.createElement('button');
+                deskCloseBtn.textContent = '✕ 关闭';
+                deskCloseBtn.style.cssText = getBtnStyle('cancel');
+                deskCloseBtn.onclick = function() { printArea.style.display = 'none'; printArea.innerHTML = ''; };
+                printArea.appendChild(deskCloseBtn);
+            }
+            } catch(e) {
+                showToast('打印出错: ' + e.message);
+                console.error('printSlip error:', e);
+            }
+        }
+
+        function downloadBlob(blob) {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url; a.download = '销售单.png'; a.click();
+            URL.revokeObjectURL(url);
+            showToast('已保存图片');
+        }
+
+        // 销售 - 批量
+        // 销售批量添加 - 同采购逻辑:点批量添加时单条字段下移,提交后清空恢复
+        function toggleBatch(show) {
+            var section = document.getElementById('batchSection');
+            if (show === undefined) show = section.style.display === 'none';
+            if (show) {
+                // 打开批量添加区,把单条的品种/数量/单价移入批量区第一条
+                var variety = document.getElementById('salesVariety').value;
+                var quantity = document.getElementById('salesQuantity').value;
+                var price = document.getElementById('salesPrice').value;
+                // 标记已转移并禁用单条字段
+                ['salesVariety','salesQuantity','salesPrice'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    el.dataset.moved = '1';
+                    el.disabled = true;
+                });
+                batchItems = [];
+                batchItems.push({ variety, quantity, price });
+                batchItems.push({ variety: '', quantity: '', price: '' }); // 自动添加第二条空白行
+                renderBatchItems();
+                section.style.display = 'block';
+            } else {
+                // 关闭批量区,恢复单条字段
+                ['salesVariety','salesQuantity','salesPrice'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el.dataset.moved === '1') {
+                        el.disabled = false;
+                        delete el.dataset.moved;
+                    }
+                });
+                section.style.display = 'none';
+            }
+        }
+        function addBatchItem() { batchItems.push({ variety: '', quantity: '', price: '' }); renderBatchItems(); }
+        function updateBatchTotal() {
+            var total = 0;
+            var date = document.getElementById('salesDate').value;
+            var customer = document.getElementById('salesCustomer').value;
+            var hasExisting = salesData.some(function(r){ return r.date === date && r.customer === customer; });
+            var shipping = parseFloat(document.getElementById('salesShipping').value) || 0;
+            for (var i = 0; i < batchItems.length; i++) {
+                if (batchItems[i].variety && batchItems[i].quantity && batchItems[i].price) {
+                    total += parseFloat(batchItems[i].quantity) * parseFloat(batchItems[i].price);
+                }
+            }
+            // Add shipping only once for first item if no existing record
+            if (batchItems.length > 0 && !hasExisting) {
+                total += shipping;
+            }
+            document.getElementById('salesAmountDisplay').textContent = total > 0 ? '\u00a5' + Math.round(total) : '\u00a50';
+        }
+
+        function renderBatchItems() {
+            var container = document.getElementById('batchItems');
+            container.innerHTML = batchItems.map(function(item, idx){
+                return '<div class="batch-item">' +
+                '<input type="text" placeholder="品种" value="'+h(item.variety)+'" oninput="batchItems['+idx+'].variety=this.value;updateBatchTotal()">' +
+                '<input type="number" placeholder="数量" step="0.1" value="'+item.quantity+'" oninput="batchItems['+idx+'].quantity=this.value;updateBatchTotal()">' +
+                '<input type="number" placeholder="单价" step="0.01" value="'+item.price+'" oninput="batchItems['+idx+'].price=this.value;updateBatchTotal()">' +
+                '<button class="btn btn-danger" onclick="batchItems.splice('+idx+',1);renderBatchItems()">删除</button>' +
+                '</div>';
+            }).join('');
+            updateBatchTotal();
+        }
+        function submitBatch() {
+            var date = document.getElementById('salesDate').value;
+            var customer = document.getElementById('salesCustomer').value;
+            var payment = document.getElementById('salesPayment').value;
+            var owed = document.getElementById('salesOwed').checked;
+            var paid = parseFloat(document.getElementById('salesPaid').value) || 0;
+            var shipping = parseFloat(document.getElementById('salesShipping').value) || 0;
+            if (!date || !customer) { alert('请填写日期和客户'); return; }
+            var added = 0;
+            var batchTotal = 0;
+            var previewLines = [];
+            for (var i = 0; i < batchItems.length; i++) {
+                if (batchItems[i].variety && batchItems[i].quantity && batchItems[i].price) {
+                    var q = parseFloat(batchItems[i].quantity);
+                    var p = parseFloat(batchItems[i].price);
+                    batchTotal += q * p;
+                    previewLines.push(batchItems[i].variety + ' × ' + q + ' 斤 × ' + p.toFixed(2) + ' = ' + (q * p).toFixed(0) + ' 元');
+                }
+            }
+            var hasExisting = salesData.some(function(r){ return r.date === date && r.customer === customer; });
+            if (!hasExisting) batchTotal += shipping;
+            if (batchTotal <= 0) { alert('请至少填写一个商品'); return; }
+            var html = '<div>'
+                + '<b>日期：</b> ' + date + '<br>'
+                + '<b>客户：</b> ' + customer + '<br>'
+                + '<b>运费：</b> ' + shipping.toFixed(0) + ' 元<br>'
+                + '<hr style="margin:6px 0;border-color:#b9d9bb;">';
+            for (var j = 0; j < previewLines.length; j++) {
+                html += '• ' + previewLines[j] + '<br>';
+            }
+            html += '<hr style="margin:6px 0;border-color:#b9d9bb;">'
+                + '<b>合计：</b> ' + batchTotal.toFixed(0) + ' 元<br>'
+                + '<b>付款：</b> ' + (owed ? '欠款（已付 ' + paid.toFixed(0) + ' 元）' : '已付清') + '<br>'
+                + '</div>';
+            showPreviewModal('批量添加（' + previewLines.length + ' 条）', html, '确认添加', function() {
+                var ratio = paid / batchTotal;
+                var count = 0;
+                for (var k = 0; k < batchItems.length; k++) {
+                    var item = batchItems[k];
+                    if (item.variety && item.quantity && item.price) {
+                        var qty = parseFloat(item.quantity);
+                        var prc = parseFloat(item.price);
+                        var itemShipping = (!hasExisting && count === 0) ? shipping : 0;
+                        var itemAmount = qty * prc + itemShipping;
+                        var itemPaid = owed ? itemAmount * ratio : itemAmount;
+                        salesData.push({ id: generateId(), date: date, customer: customer, variety: item.variety, quantity: qty, price: prc, shipping: itemShipping, amount: itemAmount, payment: payment, owed: owed, paid: itemPaid, discount: 0, note: '', lastModified: Date.now(), lastModifiedDevice: currentDevice });
+                        count++;
+                    }
+                }
+                if (count > 0) {
+                    addLog('add', 'sales', '批量添加' + count + '条 ' + customer + ' ' + date);
+                    renderSalesTable();
+                    saveData();
+                    updateReceivable();
+                    updateStats();
+                    updateInventory();
+                    batchItems = [];
+                    renderBatchItems();
+                    var clearIds = ['salesVariety','salesQuantity','salesPrice','salesShipping','salesCustomer'];
+                    for (var m = 0; m < clearIds.length; m++) {
+                        var el = document.getElementById(clearIds[m]);
+                        el.value = '';
+                        el.disabled = false;
+                        delete el.dataset.moved;
+                    }
+                    document.getElementById('batchSection').style.display = 'none';
+                    document.getElementById('salesOwed').checked = false;
+                    document.getElementById('salesOwedLabel').textContent = '未欠款';
+                    document.getElementById('salesOwedLabel').style.color = '#28a745';
+                    document.getElementById('salesPaid').value = '';
+                    document.getElementById('salesPaid').disabled = true;
+                    updateBatchTotal();
+                    alert('成功添加 ' + count + ' 条记录');
+                }
+            });
+        }
+
+        // 损耗
+        function addLoss() {
+            var date = document.getElementById('lossDate').value;
+            var purchaseDate = document.getElementById('lossPurchaseDate').value;
+            var supplier = document.getElementById('lossSupplier').value;
+            var variety = document.getElementById('lossVariety').value;
+            var quantity = parseFloat(document.getElementById('lossQuantity').value) || 0;
+            var price = parseFloat(document.getElementById('lossPrice').value);
+            if (!price && variety) {
+                var latest = purchaseData.slice().filter(function(p) { return p.variety === variety; }).sort(function(a, b) { return (b.date||'').localeCompare(a.date||''); })[0];
+                if (latest && latest.price) price = latest.price;
+            }
+            price = price || 0;
+            var reason = document.getElementById('lossReason').value;
+            var total = quantity * price;
+            if (!date || !variety || quantity === '' || quantity === null || isNaN(quantity)) { alert('请填写完整信息'); return; }
+            var note = document.getElementById('lossNote').value.trim();
+            lossData.push({ id: generateId(), date, purchaseDate, supplier, variety, quantity, price, total, reason, note, lastModified: Date.now(), lastModifiedDevice: currentDevice });
+            addLog('add', 'loss', date+' '+variety+' '+quantity+'斤');
+            renderLossTable();
+            saveData();
+            updateInventory();
+            document.getElementById('lossPurchaseDate').value = today;
+            document.getElementById('lossSupplier').value = '';
+            document.getElementById('lossVariety').value = '';
+            document.getElementById('lossQuantity').value = '';
+            document.getElementById('lossPrice').value = '';
+            document.getElementById('lossDate').value = today;
+            document.getElementById('lossNote').value = '';
+        }
+        function renderLossTable() {
+            var sorted = lossData.slice().sort(function(a, b) { return (b.date||'').localeCompare(a.date||'') || String(b.id).localeCompare(String(a.id)); });
+            document.getElementById('lossTable').innerHTML = sorted.map(function(item) {
+                var dateShort = item.date ? item.date.slice(5) : '-';
+                var purchaseDateShort = item.purchaseDate ? item.purchaseDate.slice(5) : '-';
+                var supplierHtml = h(item.supplier) || '-';
+                var priceHtml = item.price ? '\u00a5'+item.price.toFixed(2) : '-';
+                var totalHtml = item.total ? '\u00a5'+Math.round(item.total) : '-';
+                return '<tr class="data-row" data-id="'+item.id+'" onclick="toggleRow(this)">' +
+                    '<td>'+dateShort+'</td>' +
+                    '<td class="col-optional">'+purchaseDateShort+'</td>' +
+                    '<td class="col-optional">'+supplierHtml+'</td>' +
+                    '<td>'+h(item.variety)+'</td>' +
+                    '<td>'+item.quantity+'</td>' +
+                    '<td class="col-optional">'+priceHtml+'</td>' +
+                    '<td class="col-optional">'+totalHtml+'</td>' +
+                    '<td class="col-optional">'+h(item.reason)+'</td>' +
+                    '<td class="col-optional note-cell"><span title="'+h(item.note||'')+'">'+h(item.note||'-')+'</span></td>' +
+                    '<td class="col-optional last-op-cell">'+formatLastOperation(item)+'</td>' +
+                    '<td class="col-action"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();editLoss(\x27'+item.id+'\x27)">\u270f\ufe0f</button> <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();showDeleteConfirm(\x27loss\x27, \x27'+item.id+'\x27)">\u5220\u9664</button></td>' +
+                '</tr>';
+            }).join('');
+        }
+        function editLoss(id) {
+            var item = lossData.find(function(l) { return String(l.id) === String(id); });
+            if (!item) { alert('记录不存在'); return; }
+            document.getElementById('editLossId').value = item.id;
+            document.getElementById('editLossDate').value = item.date;
+            document.getElementById('editLossPurchaseDate').value = item.purchaseDate || '';
+            document.getElementById('editLossSupplier').value = item.supplier || '';
+            document.getElementById('editLossVariety').value = item.variety;
+            document.getElementById('editLossQuantity').value = item.quantity;
+            document.getElementById('editLossPrice').value = item.price || '';
+            document.getElementById('editLossReason').value = item.reason || '';
+            document.getElementById('editLossNote').value = item.note || '';
+            document.getElementById('editLossModal').classList.add('show');
+        }
+        function saveEditLoss() {
+            var id = document.getElementById('editLossId').value;
+            var item = lossData.find(function(l) { return String(l.id) === String(id); });
+            if (!item) return;
+            if (!document.getElementById('editLossDate').value) { alert('日期不能为空'); return; }
+            item.date = document.getElementById('editLossDate').value;
+            item.purchaseDate = document.getElementById('editLossPurchaseDate').value;
+            item.supplier = document.getElementById('editLossSupplier').value;
+            item.variety = document.getElementById('editLossVariety').value;
+            item.quantity = parseFloat(document.getElementById('editLossQuantity').value) || 0;
+            item.price = parseFloat(document.getElementById('editLossPrice').value) || 0;
+            item.total = item.quantity * item.price;
+            item.reason = document.getElementById('editLossReason').value;
+            item.note = document.getElementById('editLossNote').value.trim();
+            item.lastModified = Date.now();
+            item.lastModifiedDevice = currentDevice;
+            addLog('edit', 'loss', item.date+' '+item.variety+' '+item.quantity+'斤');
+            saveData();
+            renderLossTable();
+            updateInventory();
+            closeEditLossModal();
+        }
+
+        // 应收
+        function closeReceiveModal() {
+            var modal = document.getElementById('receiveModal');
+            if (modal) { modal.style.display = 'none'; modal.classList.remove('show'); }
+        }
+
+        function receivePayment(id) {
+            try {
+            var item = salesData.find(function(s){ return String(s.id)===String(id); });
+            if (!item) { alert('记录不存在'); return; }
+            var customer = item.customer;
+            var owedItems = salesData.filter(function(s){ return s.customer===customer && (s.amount-(s.discount||0)-(s.paid||0))>0; });
+            owedItems.sort(function(a,b){ return (a.date||'').localeCompare(b.date||'') || (a.id||0)-(b.id||0); });
+            var sumActual = 0, sumPaid = 0;
+            owedItems.forEach(function(s){ sumActual += s.amount-(s.discount||0); sumPaid += (s.paid||0); });
+            var sumOutstanding = sumActual - sumPaid;
+            if (sumOutstanding <= 0) { alert('已结清'); return; }
+            document.getElementById('receiveId').value = id;
+            var infoHtml = '<b>客户：</b> ' + h(customer) + (owedItems.length > 1 ? ' (' + owedItems.length + ' 笔)' : '') + '<br>'
+                + '<b>未收金额：</b> <span style="color:#c0392b;font-size:1.1em;font-weight:bold;">' + Math.round(sumOutstanding) + ' 元</span><br>'
+                + '<b>欠款笔数：</b> ' + owedItems.length + ' 笔';
+            document.getElementById('receiveInfo').innerHTML = infoHtml;
+            document.getElementById('receiveTotal').value = sumActual.toFixed(0) + ' 元';
+            document.getElementById('receiveAmount').value = Math.round(sumOutstanding);
+            document.getElementById('receiveDiscount').value = '0';
+            document.getElementById('receiveDate').value = getLocalToday();
+            document.getElementById('receiveModal').style.display = 'flex';
+            } catch(e) { console.error('receivePayment error:', e); alert('收款出错: ' + e.message); }
+        }function confirmReceive() {
+            var id = document.getElementById('receiveId').value;
+            var item = salesData.find(function(s){ return String(s.id)===String(id); });
+            if (!item) return;
+            var customer = item.customer;
+            var owedItems = salesData.filter(function(s){ return s.customer===customer && (s.amount-(s.discount||0)-(s.paid||0))>0; });
+            var sumActual = 0, sumPaid = 0;
+            owedItems.forEach(function(s){ sumActual += s.amount-(s.discount||0); sumPaid += (s.paid||0); });
+            var sumOutstanding = sumActual - sumPaid;
+            var amount = parseFloat(document.getElementById('receiveAmount').value);
+            var discount = parseFloat(document.getElementById('receiveDiscount').value) || 0;
+            var receiveDate = document.getElementById('receiveDate').value;
+            if (isNaN(amount) || amount < 0) { alert('金额无效'); return; }
+            if (amount + discount > sumOutstanding) { alert('收款+减免超过欠款总额'); return; }
+            if (discount < 0) { alert('减免金额无效'); return; }
+            if (!receiveDate) { alert('请选择收款日期'); return; }
+            var remaining = amount;
+            var remainingDiscount = discount;
+            owedItems.forEach(function(s){
+                var sOutstanding = s.amount - (s.discount||0) - (s.paid||0);
+                if (sOutstanding <= 0) return;
+                var applyDiscount = Math.min(remainingDiscount, sOutstanding);
+                if (applyDiscount > 0) {
+                    s.discount = (s.discount||0) + applyDiscount;
+                    remainingDiscount -= applyDiscount;
+                    sOutstanding = s.amount - (s.discount||0) - (s.paid||0);
+                }
+                var applyAmount = Math.min(remaining, Math.max(0, sOutstanding));
+                if (applyAmount <= 0) return;
+                s.paid = (s.paid||0) + applyAmount;
+                remaining -= applyAmount;
+                var sActual = s.amount - (s.discount||0);
+                if (s.paid >= sActual) { s.owed = false; s.paid = sActual; }
+                if (!s.receiveDates) s.receiveDates = [];
+                s.receiveDates.push({ amount: applyAmount, date: receiveDate, device: currentDevice });
+                s.lastReceiveDate = receiveDate;
+                s.lastModified = Date.now();
+                s.lastModifiedDevice = currentDevice;
+                addLog('receive', 'sales', '¥'+Math.round(applyAmount)+' '+(s.customer||'')+' '+s.variety+' ('+s.date+')');
+            });
+            // Close modal directly
+            var modal = document.getElementById('receiveModal');
+            if (modal) { modal.style.display = 'none'; modal.classList.remove('show'); }
+            saveData();
+            renderSalesTable();
+            updateReceivable();
+            updateStats();
+            var settledCount = owedItems.filter(function(s){ return !s.owed; }).length;
+            alert('收款 ' + Math.round(amount) + ' 元 减免 ' + Math.round(discount) + ' 元\n' + (settledCount>=owedItems.length ? '全部结清!' : settledCount + '笔已结清，余' + (owedItems.length-settledCount) + '笔欠款'));
+        }        function updateReceivable() {
+            var receivable = salesData.filter(function(s) { return s.amount - (s.paid||0) - (s.discount||0) > 0; });
+            var totalAmount = receivable.reduce(function(sum, s) { return sum + s.amount - (s.discount||0); }, 0);
+            var totalReceived = receivable.reduce(function(sum, s) { return sum + (s.paid||0); }, 0);
+            var totalOutstanding = totalAmount - totalReceived;
+            document.getElementById('totalReceivable').textContent = '¥' + Math.round(totalAmount);
+            document.getElementById('totalReceived').textContent = '¥' + Math.round(totalReceived);
+            document.getElementById('totalOutstanding').textContent = '¥' + Math.round(totalOutstanding) + ' 待收';
+            document.getElementById('receivableTable').innerHTML = receivable.slice().sort(function(a, b) { return (b.date||'').localeCompare(a.date||'') || String(b.id).localeCompare(String(a.id)); }).map(function(item) {
+                var paid = item.paid || 0;
+                var outstanding = item.amount - (item.discount||0) - paid;
+                var dateShort = item.date ? item.date.slice(5) : '-';
+                var hstr = '<b style="font-size:0.85em;">\u00a5'+Math.round(paid)+'</b>';
+                (item.receiveDates||[]).forEach(function(r) {
+                    var rd = r.date ? r.date.slice(5) : '-';
+                    hstr += '<div style="font-size:0.78em;color:#333;margin-top:2px;">\u00a5'+Math.round(r.amount)+'<br><span style="color:#999;">'+rd+' '+h(r.device||'')+'</span></div>';
+                });
+                return '<tr class="data-row" data-id="'+item.id+'" onclick="toggleRow(this)">' +
+                    '<td>'+dateShort+'</td><td>'+h(item.customer)+'</td><td>'+h(item.variety)+'</td>' +
+                    '<td>\u00a5'+Math.round(item.amount - (item.discount||0))+'</td>' +
+                    '<td style="max-width:90px;line-height:1.4;">'+hstr+'</td>' +
+                    '<td style="color:red;font-size:0.9em">\u00a5'+Math.round(outstanding)+'</td>' +
+                    '<td class="col-optional">'+h(item.payment)+'</td>' +
+                    '<td class="col-optional note-cell"><span title="'+h(item.note||'')+'">'+h(item.note||'-')+'</span></td>' +
+                    '<td class="col-optional last-op-cell">'+formatLastOperation(item)+'</td>' +
+                    '<td class="col-action"><button class="btn btn-success btn-sm" onclick="event.stopPropagation();receivePayment(\x27'+item.id+'\x27)">\ud83d\udcb0\u6536\u6b3e</button> <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();editSales(\x27'+item.id+'\x27)">\u270f\ufe0f</button> <button class="btn btn-success btn-sm" onclick="event.stopPropagation();printSlip(\x27'+item.id+'\x27)">\ud83d\udda8\ufe0f</button> <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();showDeleteConfirm(\x27sales\x27, \x27'+item.id+'\x27)">\u5220\u9664</button></td>' +
+                '</tr>';
+            }).join('');
+        }
+
+        // 库存
+        function updateInventory() {
+            var inv = {};
+            purchaseData.forEach(function(i) { if (!inv[i.variety]) inv[i.variety] = { p:0, s:0, l:0, cost:0 }; inv[i.variety].p += i.quantity; inv[i.variety].cost += i.total + i.shipping; });
+            salesData.forEach(function(i) { if (!inv[i.variety]) inv[i.variety] = { p:0, s:0, l:0, cost:0 }; inv[i.variety].s += i.quantity; });
+            lossData.forEach(function(i) {
+                if (!inv[i.variety]) inv[i.variety] = { p:0, s:0, l:0, cost:0 };
+                inv[i.variety].l += i.quantity;
+                inv[i.variety].cost -= (i.total || 0) + (i.shipping || 0);
+            });
+            var tbody = document.getElementById('inventoryTable');
+            tbody.innerHTML = Object.entries(inv).map(function(entry) { var v = entry[0]; var d = entry[1];
+                var stock = d.p - d.s - d.l;
+                var avg = d.p > 0 ? d.cost/d.p : 0;
+                return '<tr><td>'+h(v)+'</td><td>'+d.p.toFixed(2)+'</td><td>'+d.s.toFixed(2)+'</td><td>'+d.l.toFixed(2)+'</td><td style="color:'+(stock>=0?'green':'red')+'">'+stock.toFixed(2)+'</td><td>¥'+Math.round(avg)+'</td></tr>';
+            }).join('');
+            var tp = purchaseData.reduce(function(s, i) { return s + i.quantity; }, 0);
+            var ts = salesData.reduce(function(s, i) { return s + i.quantity; }, 0);
+            var tl = lossData.reduce(function(s, i) { return s + i.quantity; }, 0);
+            document.getElementById('totalPurchase').textContent = Math.round(tp);
+            document.getElementById('totalSales').textContent = Math.round(ts);
+            document.getElementById('totalLoss').textContent = Math.round(tl);
+            document.getElementById('currentStock').textContent = (tp-ts-tl).toFixed(2);
+        }
+
+        // 统计
+        // === 日报功能 ===
+        function dailyToday() {
+            var now = new Date();
+            document.getElementById('dailyDate').value = now.getFullYear() + '-' + ('0'+String(now.getMonth()+1)).slice(-2) + '-' + ('0'+String(now.getDate())).slice(-2);
+            updateDailyTabIcon();
+            updateDaily();
+        }
+        function updateDailyTabIcon() {
+            var d = document.getElementById('dailyDate').value;
+            if (!d) return;
+            var parts = d.split('-');
+            var m = parseInt(parts[1], 10);
+            var day = parseInt(parts[2], 10);
+            var mEl = document.getElementById('dailyTabMonth');
+            var dEl = document.getElementById('dailyTabDay');
+            if (mEl) mEl.textContent = m;
+            if (dEl) dEl.textContent = day;
+            var tmEl = document.getElementById('dailyTitleMonth');
+            var tdEl = document.getElementById('dailyTitleDay');
+            if (tmEl) tmEl.textContent = m;
+            if (tdEl) tdEl.textContent = day;
+        }
+        function dailyPrev() {
+            var d = document.getElementById('dailyDate').value;
+            if (!d) { dailyToday(); return; }
+            var dt = new Date(d); dt.setDate(dt.getDate()-1);
+            document.getElementById('dailyDate').value = dt.getFullYear() + '-' + ('0'+String(dt.getMonth()+1)).slice(-2) + '-' + ('0'+String(dt.getDate())).slice(-2);
+            updateDailyTabIcon();
+            updateDaily();
+        }
+        function dailyNext() {
+            var d = document.getElementById('dailyDate').value;
+            if (!d) { dailyToday(); return; }
+            var dt = new Date(d); dt.setDate(dt.getDate()+1);
+            document.getElementById('dailyDate').value = dt.getFullYear() + '-' + ('0'+String(dt.getMonth()+1)).slice(-2) + '-' + ('0'+String(dt.getDate())).slice(-2);
+            updateDailyTabIcon();
+            updateDaily();
+        }
+        
+        </script>
+<!-- daily detail modal -->
+        <div id="dailyDetailModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:10000;" onclick="if(event.target===this)closeDailyDetail()">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#f5f0e8;border-radius:14px;padding:22px;min-width:280px;max-width:90vw;max-height:80vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,0.3);border:1px solid #d5cfc4;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                    <h3 id="dailyDetailTitle" style="margin:0;color:#1b4332;"></h3>
+                    <span onclick="closeDailyDetail()" style="cursor:pointer;font-size:1.4em;color:#999;line-height:1;">&times;</span>
+                </div>
+                <div id="dailyDetailBody" style="font-size:0.95em;line-height:1.8;"></div>
+            </div>
+        </div>
+        <script>
+        function showDailyDetail(type, dataJson) {
+            var i;
+            try { i = JSON.parse(dataJson); } catch(e) { return; }
+            var title = '', body = '';
+            if (type === 'purchase') {
+                title = '\ud83d\udce6 \u8fdb\u8d27\u8be6\u60c5';
+                body = '<table style="width:100%;border-collapse:collapse;">';
+                if(i.variety) body += '<tr><td style="padding:4px 8px;color:#888;">\u54c1\u79cd</td><td style="padding:4px 8px;font-weight:600;">'+i.variety+'</td></tr>';
+                if(i.quantity) body += '<tr><td style="padding:4px 8px;color:#888;">\u6570\u91cf</td><td style="padding:4px 8px;">'+i.quantity+'\u65a4</td></tr>';
+                if(i.unitPrice) body += '<tr><td style="padding:4px 8px;color:#888;">\u5355\u4ef7</td><td style="padding:4px 8px;">\u00a5'+parseFloat(i.unitPrice).toFixed(2)+'</td></tr>';
+                if(i.total) body += '<tr><td style="padding:4px 8px;color:#888;">\u91d1\u989d</td><td style="padding:4px 8px;font-weight:600;color:#2d6a4f;">\u00a5'+Math.round(i.total)+'</td></tr>';
+                if(i.shipping) body += '<tr><td style="padding:4px 8px;color:#888;">\u8fd0\u8d39</td><td style="padding:4px 8px;">\u00a5'+parseFloat(i.shipping).toFixed(2)+'</td></tr>';
+                if(i.supplier) body += '<tr><td style="padding:4px 8px;color:#888;">\u4f9b\u5e94\u5546</td><td style="padding:4px 8px;">'+i.supplier+'</td></tr>';
+                if(i.arrival||i.arrivalDate) body += '<tr><td style="padding:4px 8px;color:#888;">\u5230\u8d27\u65e5</td><td style="padding:4px 8px;">'+(i.arrival||i.arrivalDate)+'</td></tr>';
+                if(i.remark) body += '<tr><td style="padding:4px 8px;color:#888;">\u5907\u6ce8</td><td style="padding:4px 8px;">'+i.remark+'</td></tr>';
+                body += '</table>';
+            } else if (type === 'sale') {
+                title = '\ud83d\udce4 \u9500\u552e\u8be6\u60c5';
+                body = '<table style="width:100%;border-collapse:collapse;">';
+                if(i.customer) body += '<tr><td style="padding:4px 8px;color:#888;">\u5ba2\u6237</td><td style="padding:4px 8px;font-weight:600;">'+i.customer+'</td></tr>';
+                if(i.variety) body += '<tr><td style="padding:4px 8px;color:#888;">\u54c1\u79cd</td><td style="padding:4px 8px;">'+i.variety+'</td></tr>';
+                if(i.quantity) body += '<tr><td style="padding:4px 8px;color:#888;">\u6570\u91cf</td><td style="padding:4px 8px;">'+i.quantity+'\u65a4</td></tr>';
+                if(i.unitPrice) body += '<tr><td style="padding:4px 8px;color:#888;">\u5355\u4ef7</td><td style="padding:4px 8px;">\u00a5'+parseFloat(i.unitPrice).toFixed(2)+'</td></tr>';
+                if(i.amount) body += '<tr><td style="padding:4px 8px;color:#888;">\u5e94\u6536</td><td style="padding:4px 8px;font-weight:600;color:#087f5b;">\u00a5'+Math.round(i.amount)+'</td></tr>';
+                if(i.discount) body += '<tr><td style="padding:4px 8px;color:#888;">\u62b9\u96f6</td><td style="padding:4px 8px;color:#9c36b5;">\u00a5'+i.discount+'</td></tr>';
+                if(i.shipping) body += '<tr><td style="padding:4px 8px;color:#888;">\u8fd0\u8d39</td><td style="padding:4px 8px;">\u00a5'+parseFloat(i.shipping).toFixed(2)+'</td></tr>';
+                if(i.paid!==undefined) body += '<tr><td style="padding:4px 8px;color:#888;">\u5df2\u6536</td><td style="padding:4px 8px;color:#2b8a3e;">\u00a5'+Math.round(i.paid||0)+'</td></tr>';
+                var owed = (i.amount||0) - (i.discount||0) - (i.paid||0);
+                if(owed > 0) body += '<tr><td style="padding:4px 8px;color:#888;">\u6b20\u6b3e</td><td style="padding:4px 8px;color:#e03131;font-weight:600;">\u00a5'+Math.round(owed)+'</td></tr>';
+                if(i.date) body += '<tr><td style="padding:4px 8px;color:#888;">\u65e5\u671f</td><td style="padding:4px 8px;">'+i.date+'</td></tr>';
+                if(i.remark) body += '<tr><td style="padding:4px 8px;color:#888;">\u5907\u6ce8</td><td style="padding:4px 8px;">'+i.remark+'</td></tr>';
+                body += '</table>';
+            } else if (type === 'loss') {
+                title = '\ud83d\uddd1\ufe0f \u635f\u8017\u8be6\u60c5';
+                body = '<table style="width:100%;border-collapse:collapse;">';
+                if(i.variety) body += '<tr><td style="padding:4px 8px;color:#888;">\u54c1\u79cd</td><td style="padding:4px 8px;font-weight:600;">'+i.variety+'</td></tr>';
+                if(i.quantity) body += '<tr><td style="padding:4px 8px;color:#888;">\u6570\u91cf</td><td style="padding:4px 8px;">'+i.quantity+'\u65a4</td></tr>';
+                if(i.total) body += '<tr><td style="padding:4px 8px;color:#888;">\u91d1\u989d</td><td style="padding:4px 8px;color:#868e96;">\u00a5'+Math.round(i.total)+'</td></tr>';
+                if(i.reason) body += '<tr><td style="padding:4px 8px;color:#888;">\u539f\u56e0</td><td style="padding:4px 8px;">'+i.reason+'</td></tr>';
+                if(i.date) body += '<tr><td style="padding:4px 8px;color:#888;">\u65e5\u671f</td><td style="padding:4px 8px;">'+i.date+'</td></tr>';
+                body += '</table>';
+            } else if (type === 'receive') {
+                title = '\ud83d\udcb0 \u6536\u6b3e\u8be6\u60c5';
+                body = '<table style="width:100%;border-collapse:collapse;">';
+                if(i.customer) body += '<tr><td style="padding:4px 8px;color:#888;">\u5ba2\u6237</td><td style="padding:4px 8px;font-weight:600;">'+i.customer+'</td></tr>';
+                if(i.amount) body += '<tr><td style="padding:4px 8px;color:#888;">\u6536\u6b3e\u989d</td><td style="padding:4px 8px;font-weight:600;color:#2b8a3e;">\u00a5'+i.amount+'</td></tr>';
+                if(i.date) body += '<tr><td style="padding:4px 8px;color:#888;">\u65e5\u671f</td><td style="padding:4px 8px;">'+i.date+'</td></tr>';
+                body += '</table>';
+            }
+            document.getElementById('dailyDetailTitle').textContent = title;
+            document.getElementById('dailyDetailBody').innerHTML = body;
+            document.getElementById('dailyDetailModal').style.display = 'block';
+        }
+        function closeDailyDetail() {
+            document.getElementById('dailyDetailModal').style.display = 'none';
+        }
+        </script>
+<script>
+function updateDaily() {
+            var date = document.getElementById('dailyDate').value;
+            if (!date) return;
+            updateDailyTabIcon();
+            var pp = purchaseData.filter(function(i){ return (i.arrival||i.arrivalDate)===date; });
+            var ss = salesData.filter(function(i){ return i.date===date; });
+            var ll = lossData.filter(function(i){ return i.date===date; });
+            var ppQty = pp.reduce(function(s,i){ return s+(parseFloat(i.quantity)||0); },0);
+            var ppAmt = pp.reduce(function(s,i){ return s+(i.total||0)+(i.shipping||0); },0);
+            var ppShip = pp.reduce(function(s,i){ return s+(i.shipping||0); },0);
+            var ppVarieties = [];
+            pp.forEach(function(i){ if (ppVarieties.indexOf(i.variety)===-1) ppVarieties.push(i.variety); });
+            var ssQty = ss.reduce(function(s,i){ return s+(parseFloat(i.quantity)||0); },0);
+            var ssAmt = ss.reduce(function(s,i){ return s+(i.amount||0); },0);
+            var ssDiscount = ss.reduce(function(s,i){ return s+(i.discount||0); },0);
+            var ssPaid = ss.reduce(function(s,i){ return s+(i.paid||0); },0);
+            var ssShip = ss.reduce(function(s,i){ return s+(i.shipping||0); },0);
+            var ssCustomers = [];
+            ss.forEach(function(i){ if (ssCustomers.indexOf(i.customer)===-1) ssCustomers.push(i.customer); });
+            var ssVarieties = [];
+            ss.forEach(function(i){ if (ssVarieties.indexOf(i.variety)===-1) ssVarieties.push(i.variety); });
+            var newOwed = ss.filter(function(i){ return i.owed; }).reduce(function(s,i){ return s+(i.amount-(i.paid||0)); },0);
+            var dayReceived = 0;
+            salesData.forEach(function(s){
+                if (s.receiveDates) s.receiveDates.forEach(function(r){
+                    if (r.date===date) dayReceived += (r.amount||0);
+                });
+            });
+            var llQty = ll.reduce(function(s,i){ return s+(parseFloat(i.quantity)||0); },0);
+            var llAmt = ll.reduce(function(s,i){ return s+(i.total||0); },0);
+            var profit = ssAmt - ppAmt;
+            var profitRate = ssAmt > 0 ? (profit/ssAmt*100).toFixed(1) : '0.0';
+            var allOwed = salesData.filter(function(i){ return (i.amount-(i.paid||0))>0; }).reduce(function(s,i){ return s+(i.amount-(i.paid||0)); },0);
+
+            var h = '';
+            // 进货
+            h += '<div style="background:#f5f0e8;padding:18px;border-radius:12px;border:1px solid #d5cfc4;margin-bottom:16px;box-shadow:0 1px 4px rgba(80,60,30,0.06);">';
+            h += '<h3 style="margin:0 0 12px;color:#1b4332;">📦 进货汇总</h3>';
+            h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;">';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#2d6a4f;">' + pp.length + '</div><div style="color:#888;font-size:0.85em;">笔数</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#2d6a4f;">' + ppVarieties.length + '</div><div style="color:#888;font-size:0.85em;">品种</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#2d6a4f;">' + ppQty.toFixed(1) + '</div><div style="color:#888;font-size:0.85em;">数量(斤)</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#2d6a4f;">¥' + Math.round(ppAmt) + '</div><div style="color:#888;font-size:0.85em;">金额</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#6c757d;">¥' + Math.round(ppShip) + '</div><div style="color:#888;font-size:0.85em;">运费</div></div>';
+            h += '</div></div>';
+
+            // 销售
+            h += '<div style="background:#f5f0e8;padding:18px;border-radius:12px;border:1px solid #d5cfc4;margin-bottom:16px;box-shadow:0 1px 4px rgba(80,60,30,0.06);">';
+            h += '<h3 style="margin:0 0 12px;color:#1b4332;">📤 销售汇总</h3>';
+            h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;">';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#087f5b;">' + ss.length + '</div><div style="color:#888;font-size:0.85em;">笔数</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#087f5b;">' + ssCustomers.length + '</div><div style="color:#888;font-size:0.85em;">客户</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#087f5b;">' + ssQty.toFixed(1) + '</div><div style="color:#888;font-size:0.85em;">数量(斤)</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#087f5b;">¥' + Math.round(ssAmt) + '</div><div style="color:#888;font-size:0.85em;">应收</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#e67700;">¥' + Math.round(ssDiscount) + '</div><div style="color:#888;font-size:0.85em;">抹零</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#2b8a3e;">¥' + Math.round(ssPaid) + '</div><div style="color:#888;font-size:0.85em;">实收</div></div>';
+            h += '</div></div>';
+
+            // 欠款
+            h += '<div style="background:#f5f0e8;padding:18px;border-radius:12px;border:1px solid #d5cfc4;margin-bottom:16px;box-shadow:0 1px 4px rgba(80,60,30,0.06);">';
+            h += '<h3 style="margin:0 0 12px;color:#1b4332;">💰 欠款汇总</h3>';
+            h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;">';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#e03131;">¥' + Math.round(newOwed) + '</div><div style="color:#888;font-size:0.85em;">新增欠款</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#2b8a3e;">¥' + Math.round(dayReceived) + '</div><div style="color:#888;font-size:0.85em;">当日收款</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#c92a2a;">¥' + Math.round(allOwed) + '</div><div style="color:#888;font-size:0.85em;">累计待收</div></div>';
+            h += '</div></div>';
+
+            // 损耗
+            if (ll.length > 0) {
+                h += '<div style="background:#f5f0e8;padding:18px;border-radius:12px;border:1px solid #d5cfc4;margin-bottom:16px;box-shadow:0 1px 4px rgba(80,60,30,0.06);">';
+                h += '<h3 style="margin:0 0 12px;color:#1b4332;">🗑️ 损耗</h3>';
+                h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;">';
+                h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#868e96;">' + llQty.toFixed(1) + '</div><div style="color:#888;font-size:0.85em;">数量(斤)</div></div>';
+                h += '<div style="text-align:center;"><div style="font-size:1.5em;font-weight:700;color:#868e96;">¥' + Math.round(llAmt) + '</div><div style="color:#888;font-size:0.85em;">金额</div></div>';
+                h += '</div></div>';
+            }
+
+            // 毛利
+            h += '<div style="background:#f5f0e8;padding:18px;border-radius:12px;border:1px solid #d5cfc4;margin-bottom:16px;box-shadow:0 1px 4px rgba(80,60,30,0.06);">';
+            h += '<h3 style="margin:0 0 12px;color:#1b4332;">📊 毛利</h3>';
+            h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;">';
+            h += '<div style="text-align:center;"><div style="font-size:1.8em;font-weight:700;color:' + (profit>=0?'#2b8a3e':'#e03131') + ';">¥' + Math.round(profit) + '</div><div style="color:#888;font-size:0.85em;">毛利润</div></div>';
+            h += '<div style="text-align:center;"><div style="font-size:1.8em;font-weight:700;color:' + (profit>=0?'#2b8a3e':'#e03131') + ';">' + profitRate + '%</div><div style="color:#888;font-size:0.85em;">毛利率</div></div>';
+            h += '</div></div>';
+
+            // 明细列表
+            h += '<div style="background:#f5f0e8;padding:18px;border-radius:12px;border:1px solid #d5cfc4;box-shadow:0 1px 4px rgba(80,60,30,0.06);">';
+            h += '<h3 style="margin:0 0 12px;color:#1b4332;">\u{1f4cb} \u660e\u7ec6</h3>';
+            if (pp.length > 0) {
+                h += '<div onclick="var n=this.nextElementSibling;n.style.display=n.style.display===\x27none\x27?\x27block\x27:\x27none\x27" style="cursor:pointer;margin-bottom:8px;"><b style="color:#2d6a4f;">\u{1f4e6} \u8fdb\u8d27\u660e\u7ec6</b> <span style="color:#888;font-size:0.85em;">(' + pp.length + '\u7b14)</span></div>';
+                h += '<div style="display:none;margin-bottom:12px;font-size:0.9em;">';
+                pp.forEach(function(i){ var _dj=JSON.stringify(i).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); h += '<div onclick="showDailyDetail(\'purchase\',this.dataset.j)" data-j="'+_dj+'" style="padding:8px 10px;border-bottom:1px solid #ddd8cd;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseenter="this.style.background=\'#e8e2d6\'" onmouseleave="this.style.background=\'transparent\'">' + (i.variety||'') + ' ' + (i.quantity||0) + '\u65a4 \u00a5' + Math.round(i.total+i.shipping) + (i.supplier?' ('+i.supplier+')':'') + '<span style="float:right;color:#bbb;">\u203a</span></div>'; });
+                h += '</div>';
+            }
+            if (ss.length > 0) {
+                h += '<div onclick="var n=this.nextElementSibling;n.style.display=n.style.display===\x27none\x27?\x27block\x27:\x27none\x27" style="cursor:pointer;margin-bottom:8px;' + (pp.length>0?'margin-top:14px;':'') + '"><b style="color:#087f5b;">\u{1f4e4} \u9500\u552e\u660e\u7ec6</b> <span style="color:#888;font-size:0.85em;">(' + ss.length + '\u7b14)</span></div>';
+                h += '<div style="display:none;margin-bottom:12px;font-size:0.9em;">';
+                ss.forEach(function(i){ var _dj=JSON.stringify(i).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); h += '<div onclick="showDailyDetail(\'sale\',this.dataset.j)" data-j="'+_dj+'" style="padding:8px 10px;border-bottom:1px solid #ddd8cd;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseenter="this.style.background=\'#e8e2d6\'" onmouseleave="this.style.background=\'transparent\'">' + (i.customer||'') + ' ' + (i.variety||'') + ' ' + (i.quantity||0) + '\u65a4 \u00a5' + Math.round(i.amount) + (i.owed?' <span style=color:#e03131>\u6b20</span>':'') + '<span style="float:right;color:#bbb;">\u203a</span></div>'; });
+                h += '</div>';
+            }
+            var owedItems = ss.filter(function(i){ var actual = (i.amount||0) - (i.discount||0); return actual - (i.paid||0) > 0; });
+            if (owedItems.length > 0) {
+                h += '<div onclick="var n=this.nextElementSibling;n.style.display=n.style.display===\x27none\x27?\x27block\x27:\x27none\x27" style="cursor:pointer;margin-bottom:8px;margin-top:14px;"><b style="color:#e67700;">\u{1f4b0} \u5e94\u6536\u8bb0\u5f55</b> <span style="color:#888;font-size:0.85em;">(' + owedItems.length + '\u7b14)</span></div>';
+                h += '<div style="display:none;margin-bottom:12px;font-size:0.9em;">';
+                owedItems.forEach(function(i){ var owed = (i.amount||0) - (i.discount||0) - (i.paid||0); var _dj=JSON.stringify(i).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); h += '<div onclick="showDailyDetail(\'sale\',this.dataset.j)" data-j="'+_dj+'" style="padding:8px 10px;border-bottom:1px solid #ddd8cd;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseenter="this.style.background=\'#e8e2d6\'" onmouseleave="this.style.background=\'transparent\'">' + (i.customer||'') + ' ' + (i.variety||'') + ' \u5e94\u6536\u00a5' + Math.round(owed) + (i.discount?' <span style=color:#9c36b5>\u62b9\u00a5'+i.discount+'</span>':'') + '<span style="float:right;color:#bbb;">\u203a</span></div>'; });
+                h += '</div>';
+            }
+            if (dayReceived > 0) {
+                h += '<div onclick="var n=this.nextElementSibling;n.style.display=n.style.display===\x27none\x27?\x27block\x27:\x27none\x27" style="cursor:pointer;margin-bottom:8px;margin-top:14px;"><b style="color:#2b8a3e;">\u{1f4b5} \u6536\u6b3e\u8bb0\u5f55</b></div>';
+                h += '<div style="display:none;margin-bottom:12px;font-size:0.9em;">';
+                salesData.forEach(function(s){
+                    if (s.receiveDates) s.receiveDates.forEach(function(r){
+                        if (r.date===date){ var _rd=JSON.stringify({customer:s.customer,amount:r.amount,date:r.date}).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); h += '<div onclick="showDailyDetail(\'receive\',this.dataset.j)" data-j="'+_rd+'" style="padding:8px 10px;border-bottom:1px solid #ddd8cd;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseenter="this.style.background=\'#e8e2d6\'" onmouseleave="this.style.background=\'transparent\'">' + (s.customer||'') + ' \u00a5' + (r.amount||0) + '<span style="float:right;color:#bbb;">\u203a</span></div>'; }
+                    });
+                });
+                h += '</div>';
+            }
+            if (ll.length > 0) {
+                h += '<div onclick="var n=this.nextElementSibling;n.style.display=n.style.display===\x27none\x27?\x27block\x27:\x27none\x27" style="cursor:pointer;margin-bottom:8px;margin-top:14px;"><b style="color:#868e96;">\u{1f5d1}\ufe0f \u635f\u8017\u8bb0\u5f55</b></div>';
+                h += '<div style="display:none;margin-bottom:12px;font-size:0.9em;">';
+                ll.forEach(function(i){ var _dj=JSON.stringify(i).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); h += '<div onclick="showDailyDetail(\'loss\',this.dataset.j)" data-j="'+_dj+'" style="padding:8px 10px;border-bottom:1px solid #ddd8cd;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseenter="this.style.background=\'#e8e2d6\'" onmouseleave="this.style.background=\'transparent\'">' + (i.variety||'') + ' ' + (i.quantity||0) + '\u65a4<span style="float:right;color:#bbb;">\u203a</span></div>'; });
+                h += '</div>';
+            }
+            if (pp.length===0 && ss.length===0 && ll.length===0) {
+                h += '<p style="color:#999;">\u5f53\u65e5\u65e0\u8bb0\u5f55</p>';
+            }
+            h += '</div>';
+
+            document.getElementById('dailyContent').innerHTML = h;
+        }
+
+        function updateStats() {
+            var tp = purchaseData.reduce(function(s,i){ return s+(i.total||0)+(i.shipping||0); },0);
+            var ts = salesData.reduce(function(s,i){ return s+(i.amount||0)+(i.shipping||0)-(i.discount||0); },0);
+            var profit = ts - tp;
+            var owed = salesData.filter(function(s){ return (s.amount||0)-(s.discount||0)-(s.paid||0)>0; }).reduce(function(s,i){ return s+((i.amount||0)-(i.discount||0)-(i.paid||0)); },0);
+            document.getElementById('totalPurchaseAmount').textContent = '¥'+Math.round(tp);
+            document.getElementById('totalSalesAmount').textContent = '¥'+Math.round(ts);
+            document.getElementById('totalProfit').textContent = '¥'+Math.round(profit);
+            document.getElementById('owedAmount').textContent = '¥'+Math.round(owed);
+        }
+
+        // 备份
+        function backupData() {
+            var data = { purchaseData, salesData, lossData, operationLogs }; // 包含操作日志
+            var now = new Date(); var backupTime = now.getFullYear() + "-" + ('0'+String(now.getMonth()+1)).slice(-2) + "-" + ('0'+String(now.getDate())).slice(-2) + "_" + ('0'+String(now.getHours())).slice(-2) + "-" + ('0'+String(now.getMinutes())).slice(-2) + "-" + ('0'+String(now.getSeconds())).slice(-2);
+            var json = JSON.stringify(data, null, 2);
+            var blob = new Blob([json], {type: 'application/json'});
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = '进销存备份_'+backupTime+'.json';
+            a.click();
+              addLog('backup', 'system', '备份文件 (采购' + purchaseData.length + '条 销售' + salesData.length + '条 损耗' + lossData.length + '条)');
+            saveData();
+            alert('✅ 数据已备份!\n\n建议:将备份文件保存到 U 盘或云盘!');
+        }
+
+        // 恢复
+        function restoreData(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = JSON.parse(e.target.result);
+                    if (!data.purchaseData || !data.salesData || !data.lossData) { alert('❌ 无效的备份文件格式!'); return; }
+                    if (confirm('⚠️ 恢复数据将覆盖当前所有数据!\n\n确定要继续吗?建议先备份当前数据。')) {
+                        purchaseData = data.purchaseData;
+                        salesData = data.salesData;
+                        lossData = data.lossData;
+                          if (data.operationLogs) { operationLogs = data.operationLogs; }
+                          addLog('restore', 'system', '恢复数据 (采购' + purchaseData.length + '条 销售' + salesData.length + '条 损耗' + lossData.length + '条)');
+                        saveData();
+                        renderAll();
+                        updateStats();
+                        updateInventory();
+                        updateReceivable();
+                        alert('✅ 数据恢复成功!');
+                    }
+                } catch (err) { alert('❌ 读取备份文件失败:' + err.message); }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // 渲染操作日志
+        function renderLogs() {
+            var container = document.getElementById('operationLogs');
+            if (!container) return;
+            if (operationLogs.length === 0) {
+                container.innerHTML = '<div style="color:#999; text-align:center; padding:20px;">暂无操作记录</div>';
+                return;
+            }
+            var actionLabels = { delete: '🗑️ 删除', add: '➕ 添加', edit: '✏️ 编辑', receive: '💰 收款' };
+            var typeLabels = { purchase: '采购入库', sales: '销售出库', loss: '损耗记录' };
+            var actionColors = { delete: '#dc3545', add: '#28a745', edit: '#007bff', receive: '#ffc107' };
+
+            container.innerHTML = operationLogs.slice(0, 50).map(function(log) {
+                var actionColor = actionColors[log.action] || '#666';
+                return '<div style="padding:8px 12px; border-bottom:1px solid #ddd8cd; display:flex; justify-content:space-between; align-items:center;">' +
+                    '<div style="flex:1;">' +
+                        '<span style="color:' + actionColor + '; font-weight:600;">' + (actionLabels[log.action] || log.action) + '</span>' +
+                        ' <span style="color:#666;">' + (typeLabels[log.type] || log.type) + '</span>' +
+                        ' <span style="color:#333;">' + h(log.detail) + '</span>' +
+                    '</div>' +
+                    '<div style="text-align:right; min-width:120px;">' +
+                        '<div style="font-size:0.85em; color:#333;">' + log.timeStr + '</div>' +
+                        '<div style="font-size:0.75em; color:#999;">' + h(log.device || '未知设备') + '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function clearLogs() {
+            if (confirm('确定要清空所有操作日志吗?')) {
+                operationLogs = [];
+                saveData();
+                renderLogs();
+            }
+        }
+
+        // 展开/收起表格行(手机端响应式)
+        function toggleRow(tr) {
+            if (window.innerWidth >= 768) return;
+            if (tr.classList.contains('expanded')) {
+                tr.classList.remove('expanded');
+            } else {
+                var table = tr.closest('table');
+                if (table) {
+                    table.querySelectorAll('tr.expanded').forEach(function(row) { row.classList.remove('expanded'); });
+                }
+                tr.classList.add('expanded');
+            }
+        }
+
+        // 导出
+        function exportData(type) {
+            var data, headers, rows;
+            if (type === 'receivable') {
+                data = salesData.filter(function(s) { return s.amount - (s.paid||0) > 0; });
+                if (data.length===0) { alert('无应收数据'); return; }
+                headers = ['日期','客户','品种','总金额','已收金额','欠款','结款方式'];
+                rows = data.map(function(i) { return [i.date, i.customer||'', i.variety, Math.round(i.amount), Math.round(i.paid||0), Math.round(i.amount-(i.paid||0)), i.payment]; });
+            } else if (type === 'inventory') {
+                var inv = {};
+                purchaseData.forEach(function(i) { if (!inv[i.variety]) inv[i.variety]={p:0,s:0,l:0,cost:0}; inv[i.variety].p+=i.quantity; inv[i.variety].cost+=i.total+i.shipping; });
+                salesData.forEach(function(i) { if (!inv[i.variety]) inv[i.variety]={p:0,s:0,l:0,cost:0}; inv[i.variety].s+=i.quantity; });
+                lossData.forEach(function(i) { if (!inv[i.variety]) inv[i.variety]={p:0,s:0,l:0,cost:0}; inv[i.variety].l+=i.quantity; });
+                var entries = Object.entries(inv);
+                if (entries.length===0) { alert('无库存数据'); return; }
+                headers = ['品种','采购总量','销售总量','损耗总量','当前库存','平均成本'];
+                rows = entries.map(function(entry) { var v = entry[0]; var d = entry[1]; var stock=(d.p-d.s-d.l); var avg=d.p>0?d.cost/d.p:0; return [v, d.p.toFixed(2), d.s.toFixed(2), d.l.toFixed(2), stock.toFixed(2), Math.round(avg)]; });
+            } else {
+                data = type==='purchase' ? purchaseData : type==='sales' ? salesData : lossData;
+                if (data.length===0) { alert('无数据'); return; }
+                headers = type==='purchase' ? ['日期','到货日期','供应商','品种','数量','单价','总价','运费','备注'] :
+                          type==='sales' ? ['日期','客户','品种','数量','单价','运费','总金额','结款方式','欠款','备注'] :
+                          ['日期','采购日期','供应商','品种','数量','单价','损耗成本','原因','备注'];
+                rows = data.map(function(i) {
+                    if (type==='purchase') return [i.date, i.arrival||'', i.supplier||'', i.variety, i.quantity, i.price, Math.round(i.total), i.shipping||0, i.note||''];
+                    else if (type==='sales') return [i.date, i.customer||'', i.variety, i.quantity, i.price, i.shipping||0, Math.round(i.amount), i.payment, i.owed?'是':'否', i.note||''];
+                    else return [i.date, i.purchaseDate||'', i.supplier||'', i.variety, i.quantity, i.price||0, Math.round(i.total||0), i.reason||'', i.note||''];
+                });
+            }
+            function escapeField(val) {
+                if (val == null || val === '') return '';
+                var str = String(val);
+                if (str.indexOf(',') >= 0 || str.indexOf('\n') >= 0 || str.indexOf('"') >= 0 || str.indexOf('\r') >= 0) return '"' + str.replace(/"/g, '""') + '"';
+                return str;
+            }
+            var csvContent = headers.join(',') + '\n' + rows.map(function(row) { return row.map(escapeField).join(','); }).join('\n');
+            var blob = new Blob(['\uFEFF' + csvContent], {type: 'text/csv;charset=utf-8;'});
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = type+'_'+getLocalToday()+'.csv';
+            a.click();
+            addLog('export', 'system', '导出 ' + type + ' 数据');
+            saveData();
+        }
+
+        // ======== 离线优先 + 云同步 =========
+        var XAPI = 'https://xiaolongxia-inventory.pages.dev'; // 同域,使用相对路径
+        var xAuthToken = '';
+        var xSyncStatus = 'offline'; // offline | ok | pending | error
+        var LOCAL_PWD_KEY = 'xlocal_pwd';
+        var LOCAL_DATA_KEY = 'xiaolongxia_data';
+        var LAST_SYNC_IDS_KEY = 'xiaolongxia_last_sync_ids';
+        // 记录上次同步时云端的id集合,用于判断删除
+        var lastSyncCloudIds = { purchase: new Set(), sales: new Set(), loss: new Set() };
+
+        function showApp() {
+            var ls = document.getElementById('login-screen');
+            if (ls) ls.style.display = 'none';
+            var c = document.querySelector('.container');
+            if (c) { c.style.display = 'block'; c.classList.add('logged-in'); }
+        }
+        function showLogin() {
+            var ls = document.getElementById('login-screen');
+            if (ls) ls.style.display = 'block';
+            var c = document.querySelector('.container');
+            if (c) { c.style.display = 'none'; c.classList.remove('logged-in'); }
+        }
+
+        // 加载本地数据
+        function loadLocalData() {
+            var stored = localStorage.getItem(LOCAL_DATA_KEY);
+            if (stored) {
+                try {
+                    var data = JSON.parse(stored);
+                    purchaseData = data.purchaseData || [];
+                    salesData = data.salesData || [];
+                    lossData = data.lossData || [];
+                    operationLogs = data.operationLogs || [];
+                } catch(e) {}
+            }
+        }
+
+        // 验证密码(本地优先,云端尝试)
+        function verifyPassword(pwd) {
+            // 测试模式:首次使用或网络不通时直接过
+            var localPwd = localStorage.getItem(LOCAL_PWD_KEY);
+            // 有网时验证云端
+            xAuthToken = pwd;
+            return xApi('/api/data').then(function(r) {
+                // 云端验证成功
+                if (r && r.purchaseData !== undefined) {
+                    localStorage.setItem(LOCAL_PWD_KEY, pwd);
+                    return true;
+                }
+                // 网络不通或API返回错误:检查本地密码
+                if (localPwd && localPwd === pwd) {
+                    return true;
+                }
+                // 没有本地密码记录,首次使用,直接放行
+                if (!localPwd) {
+                    localStorage.setItem(LOCAL_PWD_KEY, pwd);
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        window.xcloudLogin = function() {
+            var pwd = document.getElementById('login-pwd').value.trim();
+            if (!pwd) { alert('请输入密码'); return; }
+            var errEl = document.getElementById('login-error');
+            var btn = document.querySelector('#login-screen button');
+            errEl.style.display = 'none';
+            btn.textContent = '验证中...';
+            btn.disabled = true;
+
+            verifyPassword(pwd).then(function(ok) {
+                btn.textContent = '进 入';
+                btn.disabled = false;
+                if (ok) {
+                    loadLocalData();
+                    localStorage.setItem('xauth', xAuthToken || pwd);
+                    showApp();
+                    renderAll();
+                    // 后台尝试云端同步
+                    xTryCloudSync();
+                } else {
+                    errEl.style.display = 'block';
+                    document.getElementById('login-pwd').value = '';
+                }
+            }).catch(function(e) {
+                btn.textContent = '进 入';
+                btn.disabled = false;
+                errEl.textContent = '登录失败:' + (e.message || '网络错误');
+                errEl.style.display = 'block';
+            });
+        };
+
+        window.xcloudLogout = function() {
+            xAuthToken = '';
+            localStorage.removeItem('xauth');
+            showLogin();
+            document.getElementById('login-pwd').value = '';
+            document.getElementById('login-error').style.display = 'none';
+        };
+
+        function xApi(path, options) {
+            var controller = new AbortController();
+            var timer = setTimeout(function() { controller.abort(); }, 5000);
+            return fetch(XAPI + path, Object.assign({
+                signal: controller.signal,
+                headers: Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + xAuthToken }, (options && options.headers) || {})
+            }, options || {})).then(function(r) {
+                clearTimeout(timer);
+                if (!r.ok) {
+                    // HTTP 错误状态,但仍然尝试解析 JSON(可能有错误信息)
+                    return r.json().then(function(data) {
+                        return data; // 返回错误响应内容,让调用方判断
+                    }).catch(function() {
+                        return null; // 解析失败返回 null
+                    });
+                }
+                return r.json();
+            }).catch(function(e) {
+                clearTimeout(timer);
+                console.warn('xApi fetch error:', e.message || e);
+                // 网络错误返回 null,不抛异常
+                return null;
+            });
+        }
+
+        // 加载上次同步的云端id记录
+        function loadLastSyncIds() {
+            var stored = localStorage.getItem(LAST_SYNC_IDS_KEY);
+            if (stored) {
+                try {
+                    var data = JSON.parse(stored);
+                    lastSyncCloudIds.purchase = new Set(data.purchase || []);
+                    lastSyncCloudIds.sales = new Set(data.sales || []);
+                    lastSyncCloudIds.loss = new Set(data.loss || []);
+                } catch(e) {}
+            }
+        }
+        function saveLastSyncIds() {
+            localStorage.setItem(LAST_SYNC_IDS_KEY, JSON.stringify({
+                purchase: Array.from(lastSyncCloudIds.purchase),
+                sales: Array.from(lastSyncCloudIds.sales),
+                loss: Array.from(lastSyncCloudIds.loss)
+            }));
+        }
+
+        // 后台尝试云端同步(不阻塞UI)
+        async function xTryCloudSync() {
+            if (!xAuthToken) { xSyncStatus = 'offline'; xUpdateSyncBadge(); return; }
+            xSyncStatus = 'pending';
+            xUpdateSyncBadge();
+            try {
+                var r = await xApi('/api/data');
+                if (r && r.purchaseData !== undefined) {
+                    // 云端有数据 → 按id合并(保留本地新增 + 云端数据,但排除被云端删除的)
+                    // 冲突处理:以 lastModified 更新的那个为准
+                    function mergeArr(local, cloud, type) {
+                        if (!cloud || cloud.length === 0) {
+                            // 云端为空,保留本地数据
+                            return local;
+                        }
+                        if (!local || local.length === 0) {
+                            // 本地为空,直接用云端
+                            return cloud;
+                        }
+                        var cloudIds = new Set(cloud.map(function(i){ return i.id; }));
+                        var lastKnown = lastSyncCloudIds[type] || new Set();
+                        var merged = cloud.slice(); // 以云端为基准
+                        var cloudMap = new Map(cloud.map(function(i){ return [i.id, i]; }));
+                        local.forEach(function(item) {
+                            // 本地有但云端没有的记录:
+                            // - 如果上次同步时这个id在云端有 → 说明是被云端删除的,不加回去
+                            // - 如果上次同步时这个id不在云端 → 说明是本地新增的,要加上
+                            if (!cloudIds.has(item.id) && !lastKnown.has(item.id)) {
+                                merged.push(item);
+                            }
+                            // 云端和本地都有的记录:检查 lastModified,保留最新版本
+                            else if (cloudIds.has(item.id)) {
+                                var cloudItem = cloudMap.get(item.id);
+                                var localTime = item.lastModified || 0;
+                                var cloudTime = cloudItem.lastModified || 0;
+                                // 如果本地更新,用本地的
+                                if (localTime > cloudTime) {
+                                    var idx = merged.findIndex(function(r){ return String(r.id) === String(item.id); });
+                                    if (idx !== -1) merged[idx] = item;
+                                }
+                            }
+                        });
+                        // 更新本次同步的云端id集合
+                        lastSyncCloudIds[type] = cloudIds;
+                        return merged;
+                    }
+                    purchaseData = mergeArr(purchaseData, r.purchaseData || [], 'purchase');
+                    salesData = mergeArr(salesData, r.salesData || [], 'sales');
+                    lossData = mergeArr(lossData, r.lossData || [], 'loss');
+                    // 合并操作日志(按时间排序,保留最新500条)
+                    var needUpload = false;
+                    if (r.operationLogs && Array.isArray(r.operationLogs)) {
+                        var cloudLogCount = r.operationLogs.length;
+                        var allLogs = operationLogs.concat(r.operationLogs);
+                        // 去重(按id)
+                        var logMap = new Map();
+                        allLogs.forEach(function(log) {
+                            logMap.set(log.id, log);
+                        });
+                        var newLogs = Array.from(logMap.values()).sort(function(a, b) { return b.time - a.time; }).slice(0, 500);
+                        // 如果合并后日志数 > 云端日志数,说明本地有新数据,需要上传
+                        if (newLogs.length > cloudLogCount) {
+                            needUpload = true;
+                        }
+                        operationLogs = newLogs;
+                    }
+                    saveLastSyncIds();
+                    // 恢复云端收款码
+                    if (r.payQrCode) {
+                        localStorage.setItem('xiaolongxia_pay_qr', r.payQrCode);
+                        // 刷新已打开的设备弹窗中的收款码预览
+                        var qrEl = document.getElementById('qrCodePreview');
+                        if (qrEl) { qrEl.src = r.payQrCode; qrEl.style.display = 'inline'; }
+                    }
+                    localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify({purchaseData, salesData, lossData, operationLogs}));
+                    renderAll();
+                    updateStats();
+                    updateInventory();
+                    updateReceivable();
+                    xSyncStatus = 'ok';
+                    // 如果合并后有新数据,自动上传
+                    if (needUpload) {
+                        xSyncSave();
+                    }
+                } else {
+                    xSyncStatus = 'error';
+                }
+            } catch(e) { xSyncStatus = 'error'; }
+            xUpdateSyncBadge();
+        }
+
+        async function xSyncSave() {
+            if (!xAuthToken) { xSyncStatus = 'offline'; xUpdateSyncBadge(); return; }
+            xSyncStatus = 'pending';
+            xUpdateSyncBadge();
+            try {
+                var payQrCode = getPayQrCode();
+                var result = await xApi('/api/data', { method: 'PUT', body: JSON.stringify({purchaseData: purchaseData, salesData: salesData, lossData: lossData, operationLogs: operationLogs, payQrCode: payQrCode}) });
+                if (result && result.success !== false) {
+                    xSyncStatus = 'ok';
+                } else {
+                    xSyncStatus = 'error';
+                    console.error('Sync save failed:', result);
+                }
+            } catch(e) { xSyncStatus = 'error'; console.error('Sync save error:', e); }
+            xUpdateSyncBadge();
+        }
+
+        function xUpdateSyncBadge() {
+            var badges = document.querySelectorAll('.sync-badge');
+            var label, cls;
+            if (xSyncStatus === 'ok') { label = '已同步'; cls = 'sync-ok'; }
+            else if (xSyncStatus === 'pending') { label = '同步中...'; cls = 'sync-pending'; }
+            else if (xSyncStatus === 'error') { label = '同步失败'; cls = 'sync-error'; }
+            else { label = '离线模式'; cls = 'sync-pending'; }
+            badges.forEach(function(b) { b.textContent = label; b.className = 'sync-badge ' + cls; });
+        }
+
+        window.saveData = function() {
+            try {
+                localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify({purchaseData: purchaseData, salesData: salesData, lossData: lossData, operationLogs: operationLogs}));
+            } catch(e) {
+                alert('存储空间已满,请导出数据后清理');
+                return;
+            }
+            xSyncSave(); // 后台同步,不阻塞
+        };
+
+        window.logout = window.xcloudLogout;
+        // 输入区折叠功能
+        window.toggleForm = function(tabId) {
+            var content = document.getElementById(tabId);
+            if (!content) return;
+
+            var formGroup = content.querySelector('.form-group');
+            var actions = content.querySelector('.actions');
+            var btn = content.querySelector('.toggle-form-btn');
+            var header = document.querySelector('.header');
+
+            if (!formGroup || !btn) return;
+
+            var isCollapsed = formGroup.classList.contains('collapsed');
+
+            if (isCollapsed) {
+                formGroup.classList.remove('collapsed');
+                if (actions) actions.classList.remove('collapsed');
+                btn.textContent = '收起';
+                if (header) header.style.display = '';
+            } else {
+                formGroup.classList.add('collapsed');
+                if (actions) actions.classList.add('collapsed');
+                btn.textContent = '展开';
+                if (header) header.style.display = 'none';
+            }
+        };
+
+        // 启动
+        showLogin();
+        var saved = localStorage.getItem('xauth');
+        if (saved) {
+            xAuthToken = saved;
+            loadLocalData();
+            loadLastSyncIds();
+            showApp();
+            renderAll();
+            // 后台尝试云端同步
+            xTryCloudSync();
+            // 定时同步(每2分钟)
+            setInterval(function() { xTryCloudSync(); }, 120000);
+        }
+
+        // 同步 updateReceivable 等
+        window.updateReceivable = updateReceivable;
+        window.updateStats = updateStats;
+        window.updateInventory = updateInventory;
+        window.xTryCloudSync = xTryCloudSync;
+    </script>
+
+<!-- Preview Confirm Modal -->
+<div id="previewModal" class="modal">
+    <div class="modal-content" style="max-width:420px;background:#eef6ef;border-radius:12px;box-shadow:0 4px 16px rgba(0,80,0,0.10);">
+        <div class="modal-header" id="previewTitle" style="background:#27ae60;color:#fff;padding:12px 16px;border-radius:8px 8px 0 0;font-size:1.1em;">&#x1f4cb; 预览核对</div>
+        <div class="modal-body">
+            <div id="previewBody" style="background:#e8f5ee;padding:14px;border-radius:8px;font-size:0.95em;line-height:1.9;margin-bottom:14px;border:1px solid #c8e6c9;text-align:left;"></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button class="btn" style="background:#999;color:#fff;" onclick="closePreviewModal()">取消</button>
+                <button class="btn" style="background:#27ae60;color:#fff;font-weight:bold;" id="previewConfirmBtn" onclick="previewConfirmAction()">确认添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+var _previewCallback = null;
+function showPreviewModal(title, bodyHtml, confirmText, callback) {
+    document.getElementById('previewTitle').textContent = title;
+    document.getElementById('previewBody').innerHTML = bodyHtml;
+    document.getElementById('previewConfirmBtn').textContent = confirmText || '确认';
+    _previewCallback = callback;
+    document.getElementById('previewModal').style.display = 'flex';
+}
+function closePreviewModal() {
+    document.getElementById('previewModal').style.display = 'none';
+    _previewCallback = null;
+}
+function previewConfirmAction() {
+    if (_previewCallback) _previewCallback();
+    closePreviewModal();
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
