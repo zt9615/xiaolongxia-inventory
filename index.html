@@ -1627,7 +1627,7 @@ function h(t) { var d = document.createElement('div'); d.textContent = t||''; re
                     html2canvas(printArea.firstElementChild, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(function(canvas) {
                         var img = document.createElement('img');
                         img.src = canvas.toDataURL('image/png');
-                        img.style.cssText = 'max-width:100%;border-radius:8px;';
+                        img.style.cssText = 'max-width:100%;max-height:80vh;object-fit:contain;border-radius:8px;';
                         var slipEl = printArea.querySelector('.slip-container') || printArea.firstElementChild;
                         if (slipEl) slipEl.style.display = 'none';
                         printArea.insertBefore(img, printArea.firstChild);
