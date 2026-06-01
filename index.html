@@ -1531,13 +1531,16 @@ function h(t) { var d = document.createElement('div'); d.textContent = t||''; re
             }
 
             var paid = groupItems.reduce(function(sum, i) { return sum + (i.paid || 0); }, 0);
+            var actualReceived = groupItems.reduce(function(sum, i) {
+                return sum + (i.receiveDates || []).reduce(function(s, r) { return s + (r.amount || 0); }, 0);
+            }, 0);
 
             html += '<div style="border-top:2px dashed #999;padding-top:8px;margin-top:6px;">';
             html += '<div style="display:flex;justify-content:space-between;font-weight:bold;font-size:16px;"><span>合计</span><span>¥' + Math.round(totalOriginal) + '</span></div>';
             html += '<div style="display:flex;justify-content:space-between;"><span>应收</span><span>¥' + Math.round(totalOriginal) + '</span></div>';
             if (totalDiscount > 0) html += '<div style="display:flex;justify-content:space-between;color:red;"><span>抹零</span><span>¥' + totalDiscount + '</span></div>';
-            html += '<div style="display:flex;justify-content:space-between;color:#07c160;font-weight:bold;"><span>实收</span><span>¥' + Math.round(paid) + '</span></div>';
-            var owed = totalOriginal - totalDiscount - paid;
+            html += '<div style="display:flex;justify-content:space-between;color:#07c160;font-weight:bold;"><span>实收</span><span>¥' + Math.round(actualReceived) + '</span></div>';
+            var owed = totalOriginal - totalDiscount - actualReceived;
             if (owed > 0.5) html += '<div style="display:flex;justify-content:space-between;color:red;font-weight:bold;font-size:16px;"><span>欠款</span><span>¥' + Math.round(owed) + '</span></div>';
             if (item.payment) html += '<div style="display:flex;justify-content:space-between;"><span>结款方式</span><span>' + item.payment + '</span></div>';
 
@@ -1982,7 +1985,8 @@ function h(t) { var d = document.createElement('div'); d.textContent = t||''; re
             document.getElementById('totalReceived').textContent = '¥' + Math.round(totalReceived);
             document.getElementById('totalOutstanding').textContent = '¥' + Math.round(totalOutstanding) + ' 待收';
             document.getElementById('receivableTable').innerHTML = receivable.slice().sort(function(a, b) { return (b.date||'').localeCompare(a.date||'') || String(b.id).localeCompare(String(a.id)); }).map(function(item) {
-                var paid = item.paid || 0;
+                var actualReceived = (item.receiveDates||[]).reduce(function(s,r){return s+(r.amount||0);},0);
+                var paid = actualReceived;
                 var outstanding = item.amount - (item.discount||0) - paid;
                 var dateShort = item.date ? item.date.slice(5) : '-';
                 var hstr = '<b style="font-size:0.85em;">\u00a5'+Math.round(paid)+'</b>';
